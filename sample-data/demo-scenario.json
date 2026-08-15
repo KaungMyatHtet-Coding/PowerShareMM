@@ -34,8 +34,8 @@
     "total_cost_mmk": 50000,
     "max_safe_load_kw": 3,
     "slot_duration_hours": 1,
-    "overload_penalty": 20,
-    "violation_penalty": 10
+    "overload_penalty": 5,
+    "violation_penalty": 0
   },
   "uncertainty_fixture": {
     "fixture_type": "PREDEFINED_EDUCATIONAL_DEMO",

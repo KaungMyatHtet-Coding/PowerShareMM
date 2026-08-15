@@ -5,7 +5,8 @@
     "fixture_type": "BOOK_STYLE_EDUCATIONAL_REPEATED_GAME",
     "source_scope": "Philip D. Straffin, Game Theory and Strategy, Chapters 1-16",
     "is_electricity_scenario_payoff": false,
-    "notice": "This teaching fixture is separate from and was not calculated from the PowerShare MM electricity-allocation scenario."
+    "notice": "This simple book-style reference fixture tests repeated-game algorithms and is separate from the calculated PowerShare MM electricity-allocation matrix.",
+    "powershare_v1_1_usage": "The asymmetric PowerShare MM V1.1 matrix may also be used as a real-world repeated-game scenario; it does not replace this reference fixture."
   },
   "actions": ["COOPERATE", "CLAIM_MORE"],
   "payoff_matrix": {

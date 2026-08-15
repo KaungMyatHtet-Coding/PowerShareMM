@@ -2,7 +2,7 @@
 
 **Allowed status values:** `TODO`, `IN PROGRESS`, `BLOCKED`, `REVIEW`, `DONE`
 
-**Contract:** V1 frozen in [SHARED_CONTRACT.md](SHARED_CONTRACT.md)
+**Contract:** V1.1 frozen in [SHARED_CONTRACT.md](SHARED_CONTRACT.md)
 
 **Feature freeze:** Sunday, August 16, 2026 at 19:00 (Asia/Rangoon)
 
@@ -26,7 +26,7 @@ No task on this board is implemented yet. Each person creates their branch from 
 | ID | Day | Task | Deliverable | Dependency | Acceptance | Status |
 |---|---|---|---|---|---|---|
 | P1-1 | Sat | Translate frozen formulas/outcomes into pure functions | utility/payoff module | shared contract only | all component values match fixture within `1e-9` | TODO |
-| P1-2 | Sat | Implement dominance, best response, pure Nash, Pareto, honest PD detector | matrix modules + unit tests | mock matrix | expected `CC`/false results match | TODO |
+| P1-2 | Sat | Implement dominance, best response, pure Nash, Pareto, honest PD detector | matrix modules + unit tests | mock matrix | expected strict dominance by `CLAIM_MORE`, sole Nash `MM`, Pareto set `CC/CM/MC`, and asymmetric PD result match | TODO |
 | P1-3 | Sat | Implement six nature criteria | nature module/tests | nature fixture | all scores/recommendations match | TODO |
 | P1-4 | Sat | Implement arbitration candidate generation/product | arbitration module/tests | frozen generation rules | feasibility, IR, ties, no-solution tested | TODO |
 | P1-5 | Sun | Repeated-game strategies and seeded simulation | repeated module/tests | educational fixture | seed 42 deterministic; fixture label retained | TODO |
@@ -41,7 +41,7 @@ No task on this board is implemented yet. Each person creates their branch from 
 
 | ID | Day | Task | Deliverable | Dependency | Acceptance | Status |
 |---|---|---|---|---|---|---|
-| P2-1 | Sat | Define Pydantic request/response schemas | stable V1 schema types | API contract | demo fixture validates; bad inputs use error shape | TODO |
+| P2-1 | Sat | Define Pydantic request/response schemas | stable V1.1 schema types | API contract | demo fixture validates; bad inputs use error shape | TODO |
 | P2-2 | Sat | Add endpoint routing with temporary adapters | all contracted endpoints | typed schemas/mock response | envelopes and enums match fixtures | TODO |
 | P2-3 | Sat | Add minimal scenario/result repository | SQLite plus in-memory fallback | scenario schemas | create/get works; exactly two players enforced | TODO |
 | P2-4 | Sat | Write API contract tests | API test suite | temporary adapters | status codes and shapes verified | TODO |
@@ -57,7 +57,7 @@ No task on this board is implemented yet. Each person creates their branch from 
 
 | ID | Day | Task | Deliverable | Dependency | Acceptance | Status |
 |---|---|---|---|---|---|---|
-| P3-1 | Sat | Define TypeScript types/client adapter from mock | frontend types/API layer | V1 fixture | mock parses with no renamed fields | TODO |
+| P3-1 | Sat | Define TypeScript types/client adapter from mock | frontend types/API layer | V1.1 fixture | mock parses with no renamed fields | TODO |
 | P3-2 | Sat | Build scenario form and validation presentation | scenario tab | demo scenario | exact two-player fields visible; backend remains authority | TODO |
 | P3-3 | Sat | Render matrix/results from mock | matrix/dashboard tabs | mock response | Nash/Pareto/dominance/PD explanations render | TODO |
 | P3-4 | Sun | Render uncertainty/arbitration/repeated views | analysis tabs | fixtures | warnings and temporary status conspicuous | TODO |
@@ -84,8 +84,8 @@ No task on this board is implemented yet. Each person creates their branch from 
 
 | Gate/time target | Required evidence | Owner(s) | Status |
 |---|---|---|---|
-| 1. Contract freeze — Sat before coding | V1 docs/JSON parse; team acknowledges paths | P1 + P4 approval | REVIEW |
-| 2. Mock vertical slice — Sat 16:00 | frontend renders mock; API returns V1 envelope | P2 + P3 | TODO |
+| 1. Contract freeze — Sat before coding | V1.1 docs/JSON parse; team acknowledges paths | P1 + P4 approval | REVIEW |
+| 2. Mock vertical slice — Sat 16:00 | frontend renders mock; API returns V1.1 envelope | P2 + P3 | TODO |
 | 3. Real algorithm integration — Sun 09:30 | backend uses verified functions; fixture tests green | P1 + P2 + P4 | TODO |
 | 4. Full demo flow — Sun 16:30 | scenario through final explanation works offline | all | TODO |
 | 5. Feature freeze — **Sun 19:00** | P0 tests/rehearsal pass; optional work stopped | P4 release owner | TODO |
@@ -97,7 +97,8 @@ At every gate: fetch, confirm no remote divergence, run owned tests, review cont
 - [ ] Local dependency/install instructions were tested before going offline.
 - [ ] Canonical scenario loads with exactly two players and 10 kWh capacity.
 - [ ] Payoff matrix matches the frozen expected matrix.
-- [ ] `CC` Nash/Pareto result and non-PD explanation display correctly.
+- [ ] Sole Nash `MM`, Pareto set `CC/CM/MC`, and asymmetric Prisoner's Dilemma explanation display correctly.
+- [ ] Demo explains that `CC` Pareto-dominates stable `MM` and repeated interaction can support cooperation.
 - [ ] All six uncertainty methods recommend `HYBRID` for the fixture.
 - [ ] Arbitration fallback/verification warning is stated honestly.
 - [ ] Educational repeated-game fixture is clearly separate from electricity payoffs.
