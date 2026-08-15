@@ -1,0 +1,26 @@
+{
+  "id": "educational-pd-001",
+  "name": "Canonical Book-Style Prisoners Dilemma Repeated Game",
+  "metadata": {
+    "fixture_type": "BOOK_STYLE_EDUCATIONAL_REPEATED_GAME",
+    "source_scope": "Philip D. Straffin, Game Theory and Strategy, Chapters 1-16",
+    "is_electricity_scenario_payoff": false,
+    "notice": "This teaching fixture is separate from and was not calculated from the PowerShare MM electricity-allocation scenario."
+  },
+  "actions": ["COOPERATE", "CLAIM_MORE"],
+  "payoff_matrix": {
+    "CC": [3, 3],
+    "CM": [0, 5],
+    "MC": [5, 0],
+    "MM": [1, 1]
+  },
+  "strategies": [
+    "ALWAYS_COOPERATE",
+    "ALWAYS_CLAIM_MORE",
+    "TIT_FOR_TAT",
+    "FORGIVING_TIT_FOR_TAT",
+    "RANDOM"
+  ],
+  "default_rounds": 30,
+  "random_seed": 42
+}

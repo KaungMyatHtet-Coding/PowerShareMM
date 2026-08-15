@@ -11,3 +11,13 @@ The academic scope is restricted to Chapters 1–16 of Philip D. Straffin's *Gam
 - Current status: planning completed; implementation pending
 
 See the detailed [project plan](PROJECT_PLAN.md) for the mathematical foundation, implementation order, team responsibilities, verification requirements, and prototype deadline.
+
+## Team coordination
+
+- [Project plan](PROJECT_PLAN.md)
+- [Shared contract](docs/SHARED_CONTRACT.md)
+- [API contract](docs/API_CONTRACT.md)
+- [Four-person task board](docs/TASK_BOARD.md)
+- [Canonical demo scenario](sample-data/demo-scenario.json)
+- [Mock full-analysis response](sample-data/mock-full-analysis-response.json)
+- [Educational repeated-game fixture](sample-data/repeated-game-fixture.json)

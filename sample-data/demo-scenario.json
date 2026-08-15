@@ -1,0 +1,54 @@
+{
+  "id": "demo-shared-power-001",
+  "name": "Mini Market and Phone Service Shared Power",
+  "players": [
+    {
+      "id": "P1",
+      "name": "Shwe Mini Market",
+      "business_type": "mini_market",
+      "demand_kwh": 6,
+      "essential_kwh": 4,
+      "desired_hours": 5,
+      "outage_loss_mmk": 30000,
+      "urgency": 5,
+      "risk_preference": 0.4,
+      "preferred_cost_share": 0.6
+    },
+    {
+      "id": "P2",
+      "name": "TechCare Phone Service",
+      "business_type": "phone_service",
+      "demand_kwh": 7,
+      "essential_kwh": 3,
+      "desired_hours": 4,
+      "outage_loss_mmk": 20000,
+      "urgency": 3,
+      "risk_preference": 0.6,
+      "preferred_cost_share": 0.4
+    }
+  ],
+  "resource": {
+    "resource_type": "hybrid",
+    "capacity_kwh": 10,
+    "available_hours": 5,
+    "total_cost_mmk": 50000,
+    "max_safe_load_kw": 3,
+    "slot_duration_hours": 1,
+    "overload_penalty": 20,
+    "violation_penalty": 10
+  },
+  "uncertainty_fixture": {
+    "fixture_type": "PREDEFINED_EDUCATIONAL_DEMO",
+    "nature_states": [
+      { "id": "SHORT", "duration_hours": 2, "probability": 0.3 },
+      { "id": "MEDIUM", "duration_hours": 5, "probability": 0.5 },
+      { "id": "LONG", "duration_hours": 8, "probability": 0.2 }
+    ],
+    "decisions": [
+      { "id": "BATTERY_ONLY", "utilities": { "SHORT": 80, "MEDIUM": 55, "LONG": 20 } },
+      { "id": "GENERATOR_ONLY", "utilities": { "SHORT": 45, "MEDIUM": 70, "LONG": 75 } },
+      { "id": "HYBRID", "utilities": { "SHORT": 65, "MEDIUM": 85, "LONG": 90 } }
+    ],
+    "hurwicz_alpha": 0.6
+  }
+}
