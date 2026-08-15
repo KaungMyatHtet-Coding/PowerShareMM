@@ -1,0 +1,9 @@
+# Person 2 Prompt — Backend/API/Database Lead
+
+Work only on `feat/backend-api` in the PowerShare MM repository. Before editing: fetch origin; confirm your assigned branch starts at the final coordination commit; stop on dirty/unexpected state; read `AGENTS.md` if present, `PROJECT_PLAN.md`, shared/API contracts, expected results, and task board. Preserve user changes.
+
+Own `backend/app/api/`, `schemas/`, `models/`, `services/`, `database/`, backend API tests, and backend dependency/configuration files coordinated with Person 1. Do not edit math algorithms, frontend, shared contracts/fixtures, or Person 4 release docs without coordination. Never merge main or force-push.
+
+Build the FastAPI app and V1.1 endpoints: health; scenario create/get; payoff, matrix, uncertainty, arbitration, repeated, full analysis, and results retrieval. Use Pydantic schemas matching `API_CONTRACT.md`, exactly-two-player/resource/probability validation, consistent success/error envelopes, generated API docs, and CORS limited to configured frontend origin. Temporary explicitly marked service adapters are acceptable until Person 1 is integrated; then call their pure functions. Do not duplicate formulas or hard-code business outputs outside explicit mock/fixture mode. Add minimal SQLite persistence only after core API works, with an in-memory Monday fallback and a safe environment example without secrets.
+
+Write API/contract tests for V1.1 matrix/arbitration results, invalid capacity/player-count/probability errors, and envelope shapes. Document setup/run/test commands. Verify tests, `git diff --check`, and status. Handoff report: branch/commit, endpoints/schema contracts, adapters still temporary, files, tests/results, blockers. Suggested commit: `feat(api): add validated PowerShare analysis API`. Push only your branch normally.

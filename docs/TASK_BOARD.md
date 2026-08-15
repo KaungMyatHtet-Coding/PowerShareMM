@@ -4,9 +4,19 @@
 
 **Contract:** V1.1 frozen in [SHARED_CONTRACT.md](SHARED_CONTRACT.md)
 
+**Execution references:** [Expected Results](EXPECTED_RESULTS.md) · [Team Workflow](TEAM_WORKFLOW.md) · [Merge Runbook](MERGE_RUNBOOK.md)
+
 **Feature freeze:** Sunday, August 16, 2026 at 19:00 (Asia/Rangoon)
 
 No task on this board is implemented yet. Each person creates their branch from synchronized `main`, owns only the listed paths, and integrates through the designated release owner. Shared contract files, root dependency files, and lock files are serialized changes, never concurrent edits.
+
+## Priority map
+
+| Priority | Meaning | Work |
+|---|---|---|
+| P0 | Required before Sunday 19:00 freeze | frozen utility/matrix/nature/arbitration/repeated core; validated API; mock-to-live dashboard; offline demo/checklist |
+| P1 | Include only after P0 is green | game-tree minimum, SQLite browsing polish, richer theory/help, extra UI polish |
+| P2 | Optional post-demo polish | exports, extra scenarios, enhanced presentation automation |
 
 ## How to claim your role
 
@@ -20,7 +30,8 @@ No task on this board is implemented yet. Each person creates their branch from 
 
 - **Name:** Person 1 (unclaimed)
 - **Branch:** `feat/math-engine`
-- **Owned paths:** `backend/app/algorithms/`, algorithm unit tests, `docs/MATHEMATICAL_MODEL.md`
+- **Owned paths:** `backend/app/algorithms/`, `backend/tests/algorithms/`, `docs/MATHEMATICAL_MODEL.md`
+- **Prompt:** [PERSON_1_MATH_ENGINE.md](prompts/PERSON_1_MATH_ENGINE.md)
 - **Parallel rule:** Does not wait for Person 2; implements pure typed functions against frozen plain data contracts and fixtures.
 
 | ID | Day | Task | Deliverable | Dependency | Acceptance | Status |
@@ -36,7 +47,8 @@ No task on this board is implemented yet. Each person creates their branch from 
 
 - **Name:** Person 2 (unclaimed)
 - **Branch:** `feat/backend-api`
-- **Owned paths:** `backend/app/api/`, `backend/app/schemas/`, `backend/app/models/`, `backend/app/database/`, API tests
+- **Owned paths:** `backend/app/api/`, `backend/app/schemas/`, `backend/app/models/`, `backend/app/services/`, `backend/app/database/`, backend API tests/configuration
+- **Prompt:** [PERSON_2_BACKEND_API.md](prompts/PERSON_2_BACKEND_API.md)
 - **Parallel rule:** Defines typed interfaces from `API_CONTRACT.md` and initially returns clearly marked mock algorithm results; does not wait for Person 1.
 
 | ID | Day | Task | Deliverable | Dependency | Acceptance | Status |
@@ -53,6 +65,7 @@ No task on this board is implemented yet. Each person creates their branch from 
 - **Name:** Person 3 (unclaimed)
 - **Branch:** `feat/frontend-dashboard`
 - **Owned paths:** complete `frontend/` directory
+- **Prompt:** [PERSON_3_FRONTEND_DASHBOARD.md](prompts/PERSON_3_FRONTEND_DASHBOARD.md)
 - **Parallel rule:** Uses [`mock-full-analysis-response.json`](../sample-data/mock-full-analysis-response.json) immediately; never recalculates authoritative mathematics.
 
 | ID | Day | Task | Deliverable | Dependency | Acceptance | Status |
@@ -69,6 +82,7 @@ No task on this board is implemented yet. Each person creates their branch from 
 - **Name:** Person 4 (unclaimed)
 - **Branch:** `test/integration-demo`
 - **Owned paths:** shared documentation, `sample-data/`, integration tests, `presentation/`, final README updates
+- **Prompt:** [PERSON_4_INTEGRATION_DEMO.md](prompts/PERSON_4_INTEGRATION_DEMO.md)
 - **Parallel rule:** Begins fixtures, independent verification, demo script, test planning, and slides immediately.
 
 | ID | Day | Task | Deliverable | Dependency | Acceptance | Status |
@@ -91,6 +105,10 @@ No task on this board is implemented yet. Each person creates their branch from 
 | 5. Feature freeze — **Sun 19:00** | P0 tests/rehearsal pass; optional work stopped | P4 release owner | TODO |
 
 At every gate: fetch, confirm no remote divergence, run owned tests, review contract-sensitive diffs, and record blockers. A gate failure blocks dependent integration, not independent work in owned directories.
+
+## Handoff and merge readiness
+
+Every handoff states branch/commit, owned files, public interfaces or UI/API dependencies, commands/tests run and results, expected-results comparison, known limits, and blockers. Ready to merge means the owner has pushed, worktree is clean, commits are focused, tests pass, and the integration owner has reviewed the handoff and diff. P0 is required for the Monday demo; P1 is included only after P0; P2 is optional polish. Do not mark implementation tasks complete until evidence is reviewed.
 
 ## Monday demonstration checklist
 
