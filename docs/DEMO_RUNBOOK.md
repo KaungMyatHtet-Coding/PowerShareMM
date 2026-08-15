@@ -34,10 +34,10 @@ project features.
    ```
 
 5. Run `scripts/preflight-demo.ps1` before going offline. It runs 54 Python
-   regression/integration tests, frontend typecheck, lint, 7 behavioral Vitest
-   tests, and the production build. Abort and stale-response handling has
-   behavioral frontend coverage; real-browser mobile, accessibility, and
-   projector checks remain manual.
+   regression/integration tests, frontend typecheck, lint, the 12-test Vitest
+   suite, and the production build. Abort/stale-response handling,
+   localization, themes, and skeleton loading have behavioral coverage;
+   real-browser mobile, accessibility, and projector checks remain manual.
 6. Check that ports 8000 and 5173 are available. Do not terminate unrelated
    processes automatically.
 7. Open the repository in VS Code before screen sharing, connect the laptop to

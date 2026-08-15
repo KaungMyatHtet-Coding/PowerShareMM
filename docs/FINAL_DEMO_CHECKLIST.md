@@ -16,7 +16,7 @@
 - [ ] Person 4 integration tests pass.
 - [ ] Frontend typecheck passes.
 - [ ] Frontend lint passes.
-- [ ] Seven frontend tests pass, including behavioral abort/stale-response coverage.
+- [ ] Twelve frontend tests pass, including abort/stale-response, landing, localization, theme, persistence, and skeleton coverage.
 - [ ] Frontend production build passes.
 - [ ] Canonical values match `docs/EXPECTED_RESULTS.md`.
 - [ ] Live `POST /api/analysis/full` tested.

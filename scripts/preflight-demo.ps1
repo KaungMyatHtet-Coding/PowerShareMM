@@ -34,7 +34,7 @@ try {
         try {
             Invoke-Gate 'Frontend typecheck' 'npm.cmd' @('run', 'typecheck')
             Invoke-Gate 'Frontend lint' 'npm.cmd' @('run', 'lint')
-            Invoke-Gate 'Frontend tests (7 expected)' 'npm.cmd' @('test', '--', '--run')
+            Invoke-Gate 'Frontend test suite' 'npm.cmd' @('test', '--', '--run')
             Invoke-Gate 'Frontend production build' 'npm.cmd' @('run', 'build')
         } finally {
             Pop-Location

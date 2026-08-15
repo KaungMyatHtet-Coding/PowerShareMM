@@ -53,9 +53,9 @@ Stop safely with `Ctrl+C` in each terminal.
 ## Verification evidence
 
 - Baseline backend suite: 48 passed.
-- Updated frontend: typecheck, lint, 7 tests including behavioral abort/stale-response coverage, and build passed.
+- Updated frontend: typecheck, lint, 12 tests including behavioral abort/stale-response, landing, localization, theme, persistence, and skeleton coverage, and build passed.
 - Person 4 integration suite: 6 passed.
-- Complete preflight runs 54 Python tests plus frontend typecheck, lint, 7 tests, and production build before reporting success.
+- Complete preflight runs 54 Python tests plus frontend typecheck, lint, the 12-test suite, and production build before reporting success.
 - The integration suite verifies health, ten OpenAPI paths, standard 404/405
   envelopes, full-analysis transport and canonical oracle, representative
   validation errors, CORS rejection, SQLite lifecycle, and frontend backend-

@@ -39,9 +39,10 @@ See the detailed [project plan](PROJECT_PLAN.md) for the mathematical foundation
 ```
 
 The preflight runs the 54-test Python regression/integration suite plus frontend
-typecheck, lint, 7 behavioral Vitest tests, and the production build. Abort and
-stale-response handling has behavioral frontend coverage; real-browser mobile,
-accessibility, and projector checks remain manual.
+typecheck, lint, the 12-test Vitest suite, and the production build. Abort and
+stale-response handling, landing navigation, localization, themes, and skeleton
+loading have behavioral coverage; real-browser mobile, accessibility, and
+projector checks remain manual.
 
 See the [demo runbook](docs/DEMO_RUNBOOK.md), [final checklist](docs/FINAL_DEMO_CHECKLIST.md),
 and [Person 4 handoff](docs/PERSON_4_HANDOFF.md). The backend and API docs use
