@@ -36,7 +36,7 @@ export function ScenarioForm({ scenario, busy, error, onChange, onSubmit }: Prop
       <div className="nature-table"><table><caption className="sr-only">Nature-state probabilities</caption><thead><tr><th>State</th><th>Duration</th><th>Probability</th></tr></thead><tbody>{scenario.uncertainty_fixture.nature_states.map((state, index) => <tr key={state.id}><th>{state.id}</th><td>{state.duration_hours} h</td><td><input aria-label={`${state.id} probability`} type="number" step="0.1" value={state.probability} onChange={(e) => update(`uncertainty_fixture.nature_states.${index}.probability`, num(e.target.value))} /></td></tr>)}</tbody></table></div>
     </section>
     {error && <div id="form-error" className="error" role="alert"><strong>{error.kind === 'validation' ? 'Input rejected' : 'Analysis failed'}:</strong> {error.message}{error.field && <span> Field: {error.field}. {error.correction}</span>}</div>}
-    <button className="primary" type="submit" disabled={busy}>{busy ? 'Running…' : 'Run full analysis'}</button>
+    <div className="actions"><button className="primary" type="submit" disabled={busy}>{busy ? 'Running…' : error ? 'Retry analysis' : 'Run full analysis'}</button>{error && <button className="secondary" type="button" onClick={onSubmit} disabled={busy}>Retry</button>}</div>
   </form>;
 }
 
