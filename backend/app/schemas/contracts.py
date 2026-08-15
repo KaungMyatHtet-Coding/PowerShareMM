@@ -109,14 +109,40 @@ class UncertaintyRequest(ContractModel):
     hurwicz_alpha: FiniteFloat = Field(ge=0, le=1)
 
 
+class EnergyRangePayload(ContractModel):
+    minimum: FiniteFloat = Field(alias="min")
+    maximum: FiniteFloat = Field(alias="max")
+    step: FiniteFloat = Field(gt=0)
+
+    @model_validator(mode="after")
+    def range_is_ordered(self) -> "EnergyRangePayload":
+        if self.minimum > self.maximum:
+            raise ValueError("generation minimum must not exceed maximum")
+        return self
+
+
+class HoursRangePayload(ContractModel):
+    minimum: FiniteFloat = Field(alias="min")
+    maximum: FiniteFloat = Field(alias="max")
+    integer: Literal[True]
+
+    @model_validator(mode="after")
+    def range_is_ordered(self) -> "HoursRangePayload":
+        if self.minimum > self.maximum:
+            raise ValueError("generation minimum must not exceed maximum")
+        return self
+
+
 class ArbitrationGenerationPayload(ContractModel):
-    p1_energy_kwh: dict[str, Any] | None = None
-    p2_energy_kwh: dict[str, Any] | None = None
-    p1_hours: dict[str, Any] | None = None
-    p2_hours: dict[str, Any] | None = None
-    total_energy_kwh_max: FiniteFloat | None = None
-    total_exclusive_hours_max: FiniteFloat | None = None
-    p1_cost_shares: list[FiniteFloat] | None = None
+    """The fixed V1.1 candidate grid, expressed for contract validation."""
+
+    p1_energy_kwh: EnergyRangePayload
+    p2_energy_kwh: EnergyRangePayload
+    p1_hours: HoursRangePayload
+    p2_hours: HoursRangePayload
+    total_energy_kwh_max: FiniteFloat = Field(gt=0)
+    total_exclusive_hours_max: FiniteFloat = Field(gt=0)
+    p1_cost_shares: list[FiniteFloat] = Field(min_length=1)
 
 
 class ArbitrationRequest(ScenarioReferenceRequest):

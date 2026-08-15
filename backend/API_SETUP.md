@@ -37,3 +37,22 @@ git diff --check
 ```
 
 The demo scenario is loaded into the local repository when the API starts.
+
+## Full-analysis fixture alignment
+
+`POST /api/analysis/full` preserves the populated V1.1 mock's dashboard
+sections: outcome allocations/costs/penalties, matrix annotations, Prisoner's
+Dilemma ordering, uncertainty fixture metadata and state regrets, canonical
+arbitration, and final recommendation fields.  The backend keeps `outcome_id`
+as `null` for the final arbitration recommendation because that negotiated
+allocation is distinct from the one-shot matrix outcome `MM`; this avoids
+presenting two different allocations as the same result.
+
+The response also includes additive runtime fields such as
+`analysis_status`, and all calculations continue to come from the Person 1
+algorithm engine rather than from this API projection layer.
+
+`state_best_utilities` in the static mock is a presentation-only fixture field;
+the live API deliberately exposes Person 1's authoritative methods and named
+regret matrix instead of recomputing that intermediate Nature-analysis value in
+the service layer.

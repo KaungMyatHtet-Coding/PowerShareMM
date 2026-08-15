@@ -61,7 +61,7 @@ def test_payoffs_matrix_and_full_analysis_match_v1_1_oracle() -> None:
         full = full_response.json()
         assert full["meta"]["method"] == "FULL_ANALYSIS"
         assert full["data"]["arbitration_result"]["selected"]["allocation"]["energy_kwh"] == [5.5, 4.5]
-        assert full["data"]["final_recommendation"]["outcome_id"] == "MM"
+        assert full["data"]["final_recommendation"]["outcome_id"] is None
 
         result = api.get(f"/api/results/{full['meta']['result_id']}")
         assert result.status_code == 200
