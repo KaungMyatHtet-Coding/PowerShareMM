@@ -2,6 +2,8 @@
 
 V1.1 is frozen before parallel development. All work begins from the final coordination commit on `main`; contract changes require joint approval by the Mathematical/Algorithm Lead and Integration/Release Lead.
 
+For a beginner-friendly Myanmar setup and daily workflow, read [TEAM_START_GUIDE_MM.md](TEAM_START_GUIDE_MM.md).
+
 ## Roles and ownership
 
 | Person | Branch | Exclusive ownership | Main dependency |

@@ -28,3 +28,4 @@ See the detailed [project plan](PROJECT_PLAN.md) for the mathematical foundation
 - [Person 2 API prompt](docs/prompts/PERSON_2_BACKEND_API.md)
 - [Person 3 frontend prompt](docs/prompts/PERSON_3_FRONTEND_DASHBOARD.md)
 - [Person 4 integration prompt](docs/prompts/PERSON_4_INTEGRATION_DEMO.md)
+- [Burmese team start guide](docs/TEAM_START_GUIDE_MM.md) — step-by-step guide for all four members

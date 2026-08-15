@@ -6,6 +6,8 @@
 
 **Execution references:** [Expected Results](EXPECTED_RESULTS.md) · [Team Workflow](TEAM_WORKFLOW.md) · [Merge Runbook](MERGE_RUNBOOK.md)
 
+**Myanmar start guide:** [TEAM_START_GUIDE_MM.md](TEAM_START_GUIDE_MM.md)
+
 **Feature freeze:** Sunday, August 16, 2026 at 19:00 (Asia/Rangoon)
 
 No task on this board is implemented yet. Each person creates their branch from synchronized `main`, owns only the listed paths, and integrates through the designated release owner. Shared contract files, root dependency files, and lock files are serialized changes, never concurrent edits.
