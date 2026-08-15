@@ -38,6 +38,11 @@ See the detailed [project plan](PROJECT_PLAN.md) for the mathematical foundation
 .\scripts\start-frontend.ps1
 ```
 
+The preflight runs the 54-test Python regression/integration suite plus frontend
+typecheck, lint, 7 behavioral Vitest tests, and the production build. Abort and
+stale-response handling has behavioral frontend coverage; real-browser mobile,
+accessibility, and projector checks remain manual.
+
 See the [demo runbook](docs/DEMO_RUNBOOK.md), [final checklist](docs/FINAL_DEMO_CHECKLIST.md),
 and [Person 4 handoff](docs/PERSON_4_HANDOFF.md). The backend and API docs use
 `http://127.0.0.1:8000`; the Vite frontend uses `http://127.0.0.1:5173`.

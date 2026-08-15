@@ -96,6 +96,11 @@ No task on this board is implemented yet. Each person creates their branch from 
 | P4-5 | Sun | Run full/offline/manual verification | test report | Gate 4 candidate | canonical flow succeeds twice | DONE |
 | P4-6 | Sun | Final README/handoff and release hygiene | release bundle | frozen candidate | recoverable offline instructions | DONE |
 
+Person 4 synchronized with hotfix-updated main; the release preflight now runs
+54 Python tests and all frontend gates, including 7 behavioral Vitest tests with
+abort/stale-response coverage. Real-browser mobile, accessibility, and projector
+checks remain manual.
+
 ## Integration checkpoints
 
 | Gate/time target | Required evidence | Owner(s) | Status |

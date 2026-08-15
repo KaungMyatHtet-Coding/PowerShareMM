@@ -53,8 +53,9 @@ Stop safely with `Ctrl+C` in each terminal.
 ## Verification evidence
 
 - Baseline backend suite: 48 passed.
-- Baseline frontend: typecheck, lint, 5 tests, and build passed.
+- Updated frontend: typecheck, lint, 7 tests including behavioral abort/stale-response coverage, and build passed.
 - Person 4 integration suite: 6 passed.
+- Complete preflight runs 54 Python tests plus frontend typecheck, lint, 7 tests, and production build before reporting success.
 - The integration suite verifies health, ten OpenAPI paths, standard 404/405
   envelopes, full-analysis transport and canonical oracle, representative
   validation errors, CORS rejection, SQLite lifecycle, and frontend backend-
@@ -84,6 +85,7 @@ Stop safely with `Ctrl+C` in each terminal.
 - Full browser automation was not available; browser verification is covered by
   the existing Vitest/jsdom checks, source review, live HTTP checks, and the
   documented manual browser sequence.
+- Real-browser mobile, accessibility, and projector verification remains manual.
 - Backend tests emit a known Starlette/httpx deprecation warning.
 - `npm ci` reports a deprecated `whatwg-encoding` transitive package.
 - Utilities are disclosed prototype scores, not money or electrical-safety

@@ -11,11 +11,12 @@
 
 ## Quality gates
 
-- [ ] Backend tests pass (`48 passed`).
+- [ ] Python regression/integration tests pass (`54 passed`).
+- [ ] Backend-only regression tests pass (`48 passed`).
 - [ ] Person 4 integration tests pass.
 - [ ] Frontend typecheck passes.
 - [ ] Frontend lint passes.
-- [ ] Five frontend tests pass.
+- [ ] Seven frontend tests pass, including behavioral abort/stale-response coverage.
 - [ ] Frontend production build passes.
 - [ ] Canonical values match `docs/EXPECTED_RESULTS.md`.
 - [ ] Live `POST /api/analysis/full` tested.
