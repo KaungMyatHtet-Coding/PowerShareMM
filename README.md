@@ -8,7 +8,7 @@ The academic scope is restricted to Chapters 1–16 of Philip D. Straffin's *Gam
 
 - Development dates: August 15–16, 2026
 - Demonstration date: August 17, 2026
-- Current status: planning completed; implementation pending
+- Current status: V1.1 implementation integrated; offline demo preparation complete
 
 See the detailed [project plan](PROJECT_PLAN.md) for the mathematical foundation, implementation order, team responsibilities, verification requirements, and prototype deadline.
 
@@ -29,3 +29,16 @@ See the detailed [project plan](PROJECT_PLAN.md) for the mathematical foundation
 - [Person 3 frontend prompt](docs/prompts/PERSON_3_FRONTEND_DASHBOARD.md)
 - [Person 4 integration prompt](docs/prompts/PERSON_4_INTEGRATION_DEMO.md)
 - [Burmese team start guide](docs/TEAM_START_GUIDE_MM.md) — step-by-step guide for all four members
+
+## Monday demo
+
+```powershell
+.\scripts\preflight-demo.ps1
+.\scripts\start-backend.ps1
+.\scripts\start-frontend.ps1
+```
+
+See the [demo runbook](docs/DEMO_RUNBOOK.md), [final checklist](docs/FINAL_DEMO_CHECKLIST.md),
+and [Person 4 handoff](docs/PERSON_4_HANDOFF.md). The backend and API docs use
+`http://127.0.0.1:8000`; the Vite frontend uses `http://127.0.0.1:5173`.
+After dependencies are installed, the demo does not require internet access.

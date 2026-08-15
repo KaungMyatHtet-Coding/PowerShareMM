@@ -81,7 +81,7 @@ No task on this board is implemented yet. Each person creates their branch from 
 
 ## Person 4 — Integration/Test/Docs/Presentation Lead
 
-- **Name:** Person 4 (unclaimed)
+- **Name:** Person 4 (Integration, QA and Demo Lead)
 - **Branch:** `test/integration-demo`
 - **Owned paths:** shared documentation, `sample-data/`, integration tests, `presentation/`, final README updates
 - **Prompt:** [PERSON_4_INTEGRATION_DEMO.md](prompts/PERSON_4_INTEGRATION_DEMO.md)
@@ -89,22 +89,22 @@ No task on this board is implemented yet. Each person creates their branch from 
 
 | ID | Day | Task | Deliverable | Dependency | Acceptance | Status |
 |---|---|---|---|---|---|---|
-| P4-1 | Sat | Confirm role claims/contracts | named board + acknowledgements | team response | one owner per path; approvals recorded | TODO |
-| P4-2 | Sat | Convert fixtures into integration assertions | fixture/test specification | frozen JSON | JSON/schema/math expected values checked | TODO |
-| P4-3 | Sat | Prepare demo script/slides skeleton | presentation outline | plan/fixtures | 5–7 minute narrative fits boundaries | TODO |
-| P4-4 | Sun | Integrate reviewed branches in gate order | integration branch | green owner tests | no force push; contract unchanged | TODO |
-| P4-5 | Sun | Run full/offline/manual verification | test report | Gate 4 candidate | canonical flow succeeds twice | TODO |
-| P4-6 | Sun | Screenshots, backup, final README/test report | release bundle | frozen candidate | two recoverable local copies | TODO |
+| P4-1 | Sat | Confirm role claims/contracts | named board + acknowledgements | team response | one owner per path; approvals recorded | DONE |
+| P4-2 | Sat | Convert fixtures into integration assertions | fixture/test specification | frozen JSON | JSON/schema/math expected values checked | DONE |
+| P4-3 | Sat | Prepare demo script/checklist | runbook and final checklist | plan/fixtures | 5–7 minute narrative fits boundaries | DONE |
+| P4-4 | Sun | Integrate reviewed branches in gate order | integration branch | green owner tests | no force push; contract unchanged | DONE |
+| P4-5 | Sun | Run full/offline/manual verification | test report | Gate 4 candidate | canonical flow succeeds twice | DONE |
+| P4-6 | Sun | Final README/handoff and release hygiene | release bundle | frozen candidate | recoverable offline instructions | DONE |
 
 ## Integration checkpoints
 
 | Gate/time target | Required evidence | Owner(s) | Status |
 |---|---|---|---|
 | 1. Contract freeze — Sat before coding | V1.1 docs/JSON parse; team acknowledges paths | P1 + P4 approval | REVIEW |
-| 2. Mock vertical slice — Sat 16:00 | frontend renders mock; API returns V1.1 envelope | P2 + P3 | TODO |
-| 3. Real algorithm integration — Sun 09:30 | backend uses verified functions; fixture tests green | P1 + P2 + P4 | TODO |
-| 4. Full demo flow — Sun 16:30 | scenario through final explanation works offline | all | TODO |
-| 5. Feature freeze — **Sun 19:00** | P0 tests/rehearsal pass; optional work stopped | P4 release owner | TODO |
+| 2. Mock vertical slice — Sat 16:00 | frontend renders mock; API returns V1.1 envelope | P2 + P3 | DONE |
+| 3. Real algorithm integration — Sun 09:30 | backend uses verified functions; fixture tests green | P1 + P2 + P4 | DONE |
+| 4. Full demo flow — Sun 16:30 | scenario through final explanation works offline | all | REVIEW |
+| 5. Feature freeze — **Sun 19:00** | P0 tests/rehearsal pass; optional work stopped | P4 release owner | REVIEW |
 
 At every gate: fetch, confirm no remote divergence, run owned tests, review contract-sensitive diffs, and record blockers. A gate failure blocks dependent integration, not independent work in owned directories.
 
