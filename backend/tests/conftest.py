@@ -37,7 +37,7 @@ def demo_scenario():
         overload_penalty=5.0,
         violation_penalty=0.0
     )
-    
+
     # Uncertainty fixture data
     n_states = [
         NatureState(id="SHORT", duration_hours=2.0, probability=0.3),
@@ -55,7 +55,7 @@ def demo_scenario():
         decisions=decisions,
         hurwicz_alpha=0.6
     )
-    
+
     return Scenario(
         id="demo-shared-power-001",
         name="Mini Market and Phone Service Shared Power",

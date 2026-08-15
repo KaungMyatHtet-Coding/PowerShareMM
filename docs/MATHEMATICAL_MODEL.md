@@ -6,7 +6,7 @@ This document details the game-theoretic and utility formulation used in PowerSh
 
 ## 1. Non-Zero-Sum Electricity Sharing Game (Chapters 11–12)
 
-The main interaction between the two businesses—**Player 1 (Mini Market)** and **Player 2 (Phone/Computer Service Shop)**—is modeled as a $2 \times 2$ non-zero-sum game. 
+The main interaction between the two businesses—**Player 1 (Mini Market)** and **Player 2 (Phone/Computer Service Shop)**—is modeled as a $2 \times 2$ non-zero-sum game.
 
 ### Strategies
 - **COOPERATE (C)**: Honor the agreed cap/time/cost share (essential loads first, proportional distribution of surplus).
@@ -43,6 +43,11 @@ Where:
 - $L_i$: outage loss (MMK)
 - $r_i$: urgency rating ($1 \dots 5$)
 - $s_i$: cost share fraction ($s_i = e_i / (e_1 + e_2)$)
+
+The engine rejects non-finite numerical inputs, negative outage loss, negative
+allocations, out-of-range cost shares, invalid urgency/risk values, and player
+IDs other than exactly `P1` and `P2`. Validation errors are deliberate input
+corrections; the engine never silently changes a submitted player or utility.
 
 ### Final Utility Formula
 
@@ -118,7 +123,27 @@ Models long-term cooperation and retaliation behaviors over multiple rounds.
 ### Zero-Sum Subproblem (Chapters 2–4)
 - Solves competitive time-slot allocation (e.g., peak slot allocation).
 - Evaluates maximin, minimax, and saddle point existence. If no saddle point exists, solves the $2 \times 2$ mixed strategy indifference equations.
+- The scalar solver accepts one non-empty rectangular matrix of **row-player**
+  payoffs. The column-player payoff is defined as the negative of every scalar
+  entry. It validates finite real values and rejects booleans, ragged matrices,
+  and degenerate mixed-strategy inputs with clear `ValueError` messages.
+- `validate_paired_zero_sum_matrices` is available when both payoff matrices are
+  supplied. It requires identical shapes and verifies every paired payoff sums
+  to zero within the documented `1e-9` tolerance.
+- The electricity-sharing bimatrix is non-zero-sum and must not be passed to
+  these zero-sum functions.
 
 ### Sequential Game Tree (Chapter 7)
 - Models sequential bargaining: Player 1 offers $\rightarrow$ Player 2 responds.
 - Solves using **backward induction** to find the subgame perfect equilibrium and test the credibility of threats or promises.
+
+### Deterministic Random Strategy Contract
+
+Repeated-game simulations use an isolated `random.Random(seed)` instance. A
+`RANDOM` player consumes one sequential `random()` draw per stochastic action:
+values below `0.5` choose `COOPERATE`; all other values choose `CLAIM_MORE`.
+`FORGIVING_TIT_FOR_TAT` consumes one draw only when its opponent claimed in the
+previous round. This documents action consumption rather than relying on an
+unspecified container-selection implementation. For seed `42`, `RANDOM` versus
+`ALWAYS_COOPERATE` over ten rounds produces P1 actions
+`M,C,C,C,M,M,M,C,C,C` and totals `[38,18]` on the educational fixture.

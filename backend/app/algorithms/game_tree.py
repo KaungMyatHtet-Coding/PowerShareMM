@@ -35,13 +35,13 @@ def backward_induction(node: Dict[str, Any]) -> Dict[str, Any]:
     for choice in choices:
         action = choice["action"]
         child_node = choice["child"]
-        
+
         # Recursively evaluate the child node
         child_result = backward_induction(child_node)
         payoffs = child_result["payoffs"]
-        
+
         player_utility = payoffs[player_idx]
-        
+
         evaluated_choices.append({
             "action": action,
             "child_id": child_node.get("id", ""),

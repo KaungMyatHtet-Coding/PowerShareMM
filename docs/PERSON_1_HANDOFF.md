@@ -1,12 +1,12 @@
 # Person 1 to Person 2 Handoff Specification
 
 * **Role**: Mathematical/Algorithm Lead (Person 1)
-* **Status**: Complete & Verified (Ready for FastAPI integration)
+* **Status**: Corrected and ready for independent re-review
 * **Date**: Saturday, August 15, 2026
 
-Dear Person 2 (Backend API Lead), 
+Dear Person 2 (Backend API Lead),
 
-I have implemented, documented, and fully tested the mathematical and game-theoretic engine for PowerShare MM. The codebase is clean, conforms strictly to Chapters 1–16 of Philip D. Straffin's *Game Theory and Strategy*, and is verified against the canonical oracle values. 
+I have implemented, documented, and fully tested the mathematical and game-theoretic engine for PowerShare MM. The codebase is clean, conforms strictly to Chapters 1–16 of Philip D. Straffin's *Game Theory and Strategy*, and is verified against the canonical oracle values.
 
 Below is the information you need to import the core math modules into your FastAPI endpoints.
 
@@ -38,7 +38,11 @@ You can import all solver functions directly from `backend/app/algorithms/`. Her
   ```python
   def build_bimatrix(scenario: Scenario) -> Dict[str, Any]
   ```
-* **Returns**: A dictionary containing `scenario_id`, `strategies`, `outcomes` (with detailed component utility breakdowns), and the `payoff_matrix` object matching `API_CONTRACT.md` exactly.
+* **Returns**: A dictionary containing `scenario_id`, `strategies`, ordered
+  `outcomes`, and `payoff_matrix`. Each outcome has stable
+  `strategies: [P1_action, P2_action]` values (`COOPERATE` or `CLAIM_MORE`),
+  plus `allocation`, `cost`, `penalties`, `utilities`, and `components`. There
+  is no ambiguous `actions` field.
 
 ### B. Matrix & Dominance Analysis
 * **Endpoint mapping**: `POST /api/analysis/matrix`
@@ -70,6 +74,22 @@ You can import all solver functions directly from `backend/app/algorithms/`. Her
   ) -> Dict[str, Any]
   ```
 * **Validation**: Raises `ValueError` if probabilities do not sum to `1.0` (within `1e-9`) or if `hurwicz_alpha` is outside `[0.0, 1.0]`.
+
+### Zero-Sum Competitive Time-Slot Subproblem
+* **Imports**:
+  ```python
+  from backend.app.algorithms.zero_sum import (
+      find_saddles,
+      maximin_minimax,
+      solve_mixed_2x2,
+      validate_paired_zero_sum_matrices,
+      validate_scalar_zero_sum_matrix,
+  )
+  ```
+* **Convention**: a scalar matrix is the row-player payoff matrix and the
+  column-player payoff is its negation. The validation functions reject empty,
+  ragged, non-finite, and non-zero-sum paired inputs. Do not send the main
+  electricity-sharing bimatrix to these functions.
 
 ### D. Nash Arbitration
 * **Endpoint mapping**: `POST /api/analysis/arbitration`
@@ -112,11 +132,14 @@ You can import all solver functions directly from `backend/app/algorithms/`. Her
 As the QA Tester, I have verified all edge cases and oracle results. The complete pytest suite executes successfully in our virtual environment:
 
 ```powershell
+python -m pip install -r backend/requirements-math-dev.txt
 python -m pytest backend/tests/algorithms/
 ```
 
 ### Test Assertions Passed:
-1. **Utility Monotonicity**: Asserts that utility increases appropriately with higher energy and lower costs.
+1. **Utility and Scenario Validation**: Rejects negative outage loss,
+   non-finite numerical values, invalid player IDs, and invalid ranges without
+   mutating caller input.
 2. **Oracle Values Match**: Asserts that `CC` utility equals exactly `76.50` for P1 and `61.50` for P2.
 3. **Equilibrium & Pareto Accuracy**: Confirms that `CLAIM_MORE` is strictly dominant, `MM` is the sole pure Nash Equilibrium, and `CC`, `CM`, and `MC` are the only Pareto optimal outcomes.
 4. **Nash Arbitration Count**: Verified that exactly $10,440$ feasible candidate configurations are scanned, and the selected configuration corresponds to:
@@ -124,7 +147,10 @@ python -m pytest backend/tests/algorithms/
    - Hours: `[2, 3]`
    - Cost shares: `[0.6, 0.4]`
    - Product: `4771.071428571428`
-5. **Repeated Game Output Determinism**: Asserts that random selections under seed `42` generate identical outputs across execution runs.
+5. **Zero-Sum Validation**: Covers scalar/paired conventions, malformed and
+   non-finite matrices, a saddle point, 2x2 shape checks, and degeneracy.
+6. **Repeated Game Output Determinism**: Verifies the documented seed-42
+   `random()` action sequence and preserves the supplied payoff fixture.
 
 ---
 
