@@ -1,0 +1,2 @@
+# Person 1 math-engine test dependency; separate from backend API dependencies.
+pytest>=8,<10
