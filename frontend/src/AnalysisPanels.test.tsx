@@ -159,17 +159,40 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.getAllByText('Pareto Frontier').length).toBeGreaterThan(0);
   });
 
-  /* 9. Localized Myanmar Prisoner’s Dilemma status & refined utility wording */
-  it('localizes Prisoner’s Dilemma status and utility explanation in Myanmar mode', () => {
+  /* 9. Localized Myanmar Prisoner’s Dilemma status & neutral wording */
+  it('localizes Prisoner’s Dilemma status and utility explanation in Myanmar mode with neutral backend-driven text', () => {
     window.localStorage.setItem('powershare-language', 'my');
     renderPanels(<AnalysisPanels data={data} tab="analysis" scenario={demoScenario} />);
 
-    // Myanmar localized PD title & status must be present
+    // Myanmar localized neutral PD title & status must be present
     expect(screen.getAllByText(/အကျဉ်းသားနှစ်ဦး၏ အကျပ်အတည်း \(Prisoner’s Dilemma\)/).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Backend စစ်ဆေးမှုအရ အကျဉ်းသားနှစ်ဦး၏ အကျပ်အတည်း \(Prisoner’s Dilemma\) ကို တွေ့ရှိထားသည်။/)).toBeInTheDocument();
+
+    // Generic status MUST NOT contain hardcoded outcome IDs or actions
+    const pdBox = screen.getByText(/Backend စစ်ဆေးမှုအရ အကျဉ်းသားနှစ်ဦး၏ အကျပ်အတည်း/).closest('.pd-status-box')!;
+    expect(pdBox).not.toHaveTextContent('CLAIM_MORE');
+    expect(pdBox).not.toHaveTextContent('MM');
+    expect(pdBox).not.toHaveTextContent('CC');
+
     // Refined utility explanation must be rendered
     expect(screen.getByText(/Model အရ အကျိုးရရှိမှုအဆင့်ကို ဖော်ပြသည်/)).toBeInTheDocument();
     // Raw English explanation should not be displayed
     expect(screen.queryByText(/Strictly dominant strategies lead to/)).not.toBeInTheDocument();
+  });
+
+  /* 9b. Myanmar not-detected Prisoner's Dilemma status */
+  it('renders neutral not-detected Prisoner’s Dilemma status in Myanmar mode when detected is false', () => {
+    window.localStorage.setItem('powershare-language', 'my');
+    const notDetectedData: FullAnalysisData = {
+      ...data,
+      prisoners_dilemma: {
+        ...data.prisoners_dilemma,
+        detected: false,
+      },
+    };
+    renderPanels(<AnalysisPanels data={notDetectedData} tab="analysis" scenario={demoScenario} />);
+
+    expect(screen.getByText('Backend စစ်ဆေးမှုအရ အကျဉ်းသားနှစ်ဦး၏ အကျပ်အတည်း (Prisoner’s Dilemma) ကို မတွေ့ရှိပါ။')).toBeInTheDocument();
   });
 
   /* 10. Glossary is accordion/details element accessible by keyboard */
