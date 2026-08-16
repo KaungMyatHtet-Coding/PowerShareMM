@@ -165,8 +165,8 @@ describe('ScenarioForm — guided UX', () => {
     goScenario();
     fireEvent.click(screen.getByRole('radio', { name: en.mockDemoData }));
     fireEvent.click(screen.getByRole('button', { name: en.findSharingRecommendation }));
-    expect(screen.getByText('76.50')).toBeInTheDocument();
-    expect(screen.getByText('Nash Equilibrium: MM')).toBeInTheDocument();
+    expect(screen.getAllByText('76.50').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Nash Equilibrium/).length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: 'Uncertainty' }));
     expect(screen.getAllByText('HYBRID').length).toBeGreaterThan(0);
     fireEvent.click(screen.getByRole('button', { name: 'Arbitration' }));

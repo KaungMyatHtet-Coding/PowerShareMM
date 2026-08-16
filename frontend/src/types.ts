@@ -1,4 +1,5 @@
 export type ApiMode = 'live' | 'mock';
+export type WorkspaceTab = 'scenario' | 'analysis' | 'uncertainty' | 'arbitration' | 'simulation' | 'results';
 
 export interface Player {
   id: 'P1' | 'P2';

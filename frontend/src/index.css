@@ -124,7 +124,67 @@ footer { display:flex; justify-content:space-between; gap:1rem; padding:1.2rem 1
 .primary-action-wrap .primary { width: 100%; font-size: 1rem; min-height: 52px; }
 .action-help { margin: 0; font-size: .75rem; color: var(--text-muted); line-height: 1.45; }
 
+/* ── Guided Analysis Page Styling ────────────────────────────────────── */
+.guided-analysis { display: grid; gap: 1.25rem; }
+.player-identity-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: .75rem; }
+.player-box { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px; padding: .8rem 1rem; }
+.player-box h3 { margin: .2rem 0; font-size: 1rem; }
+.player-badge { display: inline-block; font-size: .7rem; font-weight: 800; border-radius: 4px; padding: .2rem .5rem; margin-bottom: .35rem; }
+.row-badge { background: color-mix(in srgb, var(--primary) 20%, transparent); color: var(--primary); }
+.col-badge { background: color-mix(in srgb, var(--success) 20%, transparent); color: var(--success); }
+.action-legend-grid { display: grid; gap: .5rem; margin-top: .75rem; font-size: .85rem; }
+
+.outcome-cards-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: .75rem; }
+.outcome-card { display: flex; flex-direction: column; gap: .6rem; border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; background: var(--surface-soft); transition: border-color .15s; }
+.outcome-card.is-nash { border-color: var(--error); }
+.outcome-card.is-pareto { border-color: var(--success); }
+.outcome-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: .5rem; }
+.outcome-card-header h3 { margin: 0; font-size: 1.05rem; }
+.badge-row { display: flex; gap: .35rem; flex-wrap: wrap; }
+.outcome-actions { display: flex; flex-direction: column; gap: .2rem; font-size: .82rem; color: var(--text-muted); }
+.outcome-utilities { display: flex; gap: 1.2rem; background: var(--surface-raised); border-radius: 8px; padding: .6rem .8rem; border: 1px solid var(--border); }
+.util-score { display: flex; flex-direction: column; gap: .1rem; }
+.score-label { font-size: .72rem; color: var(--text-muted); }
+.score-val { font-size: 1.15rem; font-weight: 900; color: var(--text); }
+.outcome-desc { margin: 0; font-size: .82rem; color: var(--text-muted); line-height: 1.45; }
+
+.conclusions-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: .75rem; }
+.conclusion-box { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 10px; padding: .9rem 1rem; }
+.conclusion-box h3 { margin: 0 0 .5rem; font-size: .95rem; }
+.badge-wrapper { margin: 0; display: flex; gap: .5rem; flex-wrap: wrap; }
+.big-badge { font-size: .9rem; padding: .3rem .75rem; font-weight: 800; }
+
+.pd-status-box { margin-top: 1rem; }
+.pd-status-box h3 { margin: 0 0 .4rem; font-size: .95rem; }
+
+.utility-clarification { background: var(--surface-raised); border-left: 3px solid var(--primary); padding: .7rem .9rem; border-radius: 0 8px 8px 0; margin-top: 1rem; }
+.utility-clarification h4 { margin: 0 0 .25rem; font-size: .85rem; color: var(--primary); }
+.utility-clarification p { margin: 0; font-size: .8rem; color: var(--text-muted); line-height: 1.45; }
+
+.arbitration-cta-box { display: flex; justify-content: space-between; align-items: center; gap: 1rem; background: color-mix(in srgb, var(--primary) 10%, var(--surface)); border: 1px solid var(--primary); border-radius: 12px; padding: 1rem 1.1rem; margin-top: 1rem; flex-wrap: wrap; }
+.arbitration-cta-box p { margin: 0; flex: 1; font-size: .85rem; line-height: 1.5; font-weight: 600; }
+.cta-btn { white-space: nowrap; font-size: .9rem; }
+
+.academic-matrix-card { margin-top: .5rem; }
+.cell-outcome-id { font-size: .75rem; font-weight: 800; color: var(--primary); margin-bottom: .25rem; }
+.cell-scores { display: flex; flex-direction: column; gap: .15rem; font-size: .82rem; }
+.cell-badges { display: flex; gap: .25rem; justify-content: center; margin-top: .35rem; flex-wrap: wrap; }
+
+.glossary-details summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+.glossary-details summary::-webkit-details-marker { display: none; }
+.glossary-body { margin-top: .75rem; border-top: 1px solid var(--border); padding-top: .75rem; }
+.glossary-list { display: grid; gap: .8rem; margin: 0; }
+.glossary-list dt { font-weight: 800; font-size: .9rem; color: var(--primary); margin-bottom: .2rem; }
+.glossary-list dd { margin: 0; font-size: .82rem; color: var(--text-muted); line-height: 1.5; }
+.dominated-list { margin: .35rem 0 0; padding-left: 1.2rem; font-size: .8rem; }
+
 /* Responsive */
+@media (max-width: 768px) {
+  .player-identity-grid, .outcome-cards-grid, .conclusions-grid { grid-template-columns: 1fr; }
+  .arbitration-cta-box { flex-direction: column; align-items: stretch; }
+  .cta-btn { width: 100%; text-align: center; }
+}
+
 @media (max-width: 650px) {
   .step-guide { flex-direction: column; }
   .example-stats { flex-direction: column; gap: .75rem; }
@@ -134,3 +194,4 @@ footer { display:flex; justify-content:space-between; gap:1rem; padding:1.2rem 1
   .guided-actions { flex-direction: column; }
   .primary-action-wrap { width: 100%; min-width: unset; }
 }
+
