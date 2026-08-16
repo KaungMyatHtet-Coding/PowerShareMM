@@ -186,4 +186,34 @@ describe('ScenarioForm — guided UX', () => {
     expect(screen.getByText(en.reviewSummaryTitle)).toBeInTheDocument();
     expect(screen.getByText(en.findSharingHelp)).toBeInTheDocument();
   });
+
+  /* 16. Disables submission when capacity <= 0 */
+  it('disables submission when capacity is 0 or negative', () => {
+    goScenario();
+    const capacityInput = screen.getByRole('spinbutton', {
+      name: new RegExp(en.capacity.replace(/\s*\(.*\)/, ''), 'i'),
+    });
+    fireEvent.change(capacityInput, { target: { value: '0' } });
+    expect(screen.getAllByText(en.mustBeGreaterThanZero).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: en.findSharingRecommendation })).toBeDisabled();
+  });
+
+  /* 17. Disables submission when available hours <= 0 */
+  it('disables submission when available hours is 0 or negative', () => {
+    goScenario();
+    const hoursInput = screen.getByRole('spinbutton', {
+      name: new RegExp(en.availableHours.replace(/\s*\(.*\)/, ''), 'i'),
+    });
+    fireEvent.change(hoursInput, { target: { value: '0' } });
+    expect(screen.getAllByText(en.mustBeGreaterThanZero).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: en.findSharingRecommendation })).toBeDisabled();
+  });
+
+  /* 18. Native radio buttons are used for urgency control */
+  it('uses native radio buttons for urgency control', () => {
+    goScenario();
+    const radios = screen.getAllByRole('radio', { name: /1|2|3|4|5/ });
+    expect(radios.length).toBeGreaterThan(0);
+    expect(radios[0]).toHaveAttribute('type', 'radio');
+  });
 });

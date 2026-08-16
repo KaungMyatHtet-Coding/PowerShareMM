@@ -76,18 +76,26 @@ function UrgencyControl({ value, onChange, id, t }: {
 }) {
   const labels: TranslationKey[] = ['urgency1', 'urgency2', 'urgency3', 'urgency4', 'urgency5'];
   return (
-    <div className="urgency-group" role="radiogroup" aria-label={t('urgency')}>
-      {([1, 2, 3, 4, 5] as const).map((n) => (
-        <button key={n} type="button"
-          className={`urgency-btn${value === n ? ' selected' : ''}`}
-          aria-pressed={value === n}
-          id={`${id}-${n}`}
-          onClick={() => onChange(n)}>
-          <span className="urgency-num">{n}</span>
-          <span className="urgency-lbl">{t(labels[n - 1])}</span>
-        </button>
-      ))}
-    </div>
+    <fieldset className="urgency-fieldset">
+      <legend className="sr-only">{t('urgency')}</legend>
+      <div className="urgency-group">
+        {([1, 2, 3, 4, 5] as const).map((n) => (
+          <label key={n} htmlFor={`${id}-${n}`} className={`urgency-btn${value === n ? ' selected' : ''}`}>
+            <input
+              type="radio"
+              id={`${id}-${n}`}
+              name={`urgency-${id}`}
+              value={n}
+              checked={value === n}
+              onChange={() => onChange(n)}
+              className="sr-only"
+            />
+            <span className="urgency-num">{n}</span>
+            <span className="urgency-lbl">{t(labels[n - 1])}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }
 
@@ -264,13 +272,23 @@ export function ScenarioForm({ scenario, busy, error, onChange, onSubmit }: Prop
   /* Validation */
   const p1 = scenario.players[0];
   const p2 = scenario.players[1];
+  const capErr       = scenario.resource.capacity_kwh <= 0;
+  const hoursErr     = scenario.resource.available_hours <= 0;
+  const loadErr      = scenario.resource.max_safe_load_kw <= 0;
+  const slotErr      = scenario.resource.slot_duration_hours <= 0;
+  const p1DemandErr  = p1.demand_kwh <= 0;
+  const p2DemandErr  = p2.demand_kwh <= 0;
+  const p1HoursErr   = p1.desired_hours <= 0;
+  const p2HoursErr   = p2.desired_hours <= 0;
+
   const p1EssErr    = p1.essential_kwh > p1.demand_kwh;
   const p2EssErr    = p2.essential_kwh > p2.demand_kwh;
   const csSum       = p1.preferred_cost_share + p2.preferred_cost_share;
   const probSum     = scenario.uncertainty_fixture.nature_states.reduce((s, n) => s + n.probability, 0);
   const costShareError = Math.abs(csSum - 1.0) > 0.001;
   const probError      = Math.abs(probSum - 1.0) > 0.001;
-  const hasErrors      = p1EssErr || p2EssErr || costShareError || probError;
+  const posError     = capErr || hoursErr || loadErr || slotErr || p1DemandErr || p2DemandErr || p1HoursErr || p2HoursErr;
+  const hasErrors      = posError || p1EssErr || p2EssErr || costShareError || probError;
 
   /* Probability state labels */
   const stateLabels: Record<string, TranslationKey> = {
@@ -313,12 +331,14 @@ export function ScenarioForm({ scenario, busy, error, onChange, onSubmit }: Prop
             <Field id="sf-capacity" label={t('capacity')} type="number" step="0.1"
               value={scenario.resource.capacity_kwh} unit="kWh"
               onChange={(v) => update('resource.capacity_kwh', num(v))}
-              helpText={t('capacityHelp')} />
+              helpText={t('capacityHelp')}
+              errorText={capErr ? t('mustBeGreaterThanZero') : undefined} />
 
             <Field id="sf-avail-hours" label={t('availableHours')} type="number" step="0.5"
               value={scenario.resource.available_hours} unit={t('hoursUnit')}
               onChange={(v) => update('resource.available_hours', num(v))}
-              helpText={t('availableHoursHelp')} />
+              helpText={t('availableHoursHelp')}
+              errorText={hoursErr ? t('mustBeGreaterThanZero') : undefined} />
 
             <Field id="sf-total-cost" label={t('totalCost')} type="number"
               value={scenario.resource.total_cost_mmk} unit="MMK"
@@ -342,7 +362,8 @@ export function ScenarioForm({ scenario, busy, error, onChange, onSubmit }: Prop
                 <Field id={`${player.id}-demand`} label={t('demand')} type="number" step="0.5"
                   value={player.demand_kwh} unit="kWh"
                   onChange={(v) => update(`players.${idx}.demand_kwh`, num(v))}
-                  helpText={t('demandHelp')} />
+                  helpText={t('demandHelp')}
+                  errorText={(idx === 0 ? p1DemandErr : p2DemandErr) ? t('mustBeGreaterThanZero') : undefined} />
 
                 <Field id={`${player.id}-essential`} label={t('essential')} type="number" step="0.5"
                   value={player.essential_kwh} unit="kWh"
@@ -353,7 +374,8 @@ export function ScenarioForm({ scenario, busy, error, onChange, onSubmit }: Prop
                 <Field id={`${player.id}-dhours`} label={t('desiredHours')} type="number" step="0.5"
                   value={player.desired_hours} unit={t('hoursUnit')}
                   onChange={(v) => update(`players.${idx}.desired_hours`, num(v))}
-                  helpText={t('desiredHoursHelp')} />
+                  helpText={t('desiredHoursHelp')}
+                  errorText={(idx === 0 ? p1HoursErr : p2HoursErr) ? t('mustBeGreaterThanZero') : undefined} />
 
                 <Field id={`${player.id}-loss`} label={t('outageLoss')} type="number"
                   value={player.outage_loss_mmk} unit="MMK"
@@ -398,12 +420,14 @@ export function ScenarioForm({ scenario, busy, error, onChange, onSubmit }: Prop
                 <Field id="sf-max-load" label={t('maxSafeLoad')} type="number"
                   value={scenario.resource.max_safe_load_kw} unit="kW"
                   onChange={(v) => update('resource.max_safe_load_kw', num(v))}
-                  helpText={t('maxSafeLoadHelp')} />
+                  helpText={t('maxSafeLoadHelp')}
+                  errorText={loadErr ? t('mustBeGreaterThanZero') : undefined} />
 
                 <Field id="sf-slot" label={t('slotDuration')} type="number" step="0.5"
                   value={scenario.resource.slot_duration_hours} unit={t('hoursUnit')}
                   onChange={(v) => update('resource.slot_duration_hours', num(v))}
-                  helpText={t('slotDurationHelp')} />
+                  helpText={t('slotDurationHelp')}
+                  errorText={slotErr ? t('mustBeGreaterThanZero') : undefined} />
 
                 <Field id="sf-overload" label={t('overloadPenalty')} type="number"
                   value={scenario.resource.overload_penalty}
