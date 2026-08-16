@@ -194,4 +194,3 @@ footer { display:flex; justify-content:space-between; gap:1rem; padding:1.2rem 1
   .guided-actions { flex-direction: column; }
   .primary-action-wrap { width: 100%; min-width: unset; }
 }
-

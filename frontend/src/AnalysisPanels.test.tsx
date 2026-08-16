@@ -74,8 +74,8 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.getAllByText('61.50').length).toBeGreaterThan(0);
   });
 
-  /* 5. Missing player names use safe fallbacks */
-  it('uses fallback names when player names are missing or blank', () => {
+  /* 5. Missing player names use safe role-based fallbacks without contradictory P2 (P1) */
+  it('uses role-based fallbacks when player names are blank and prevents contradictory P2 (P1)', () => {
     const blankPlayerScenario: Scenario = {
       ...demoScenario,
       players: [
@@ -84,8 +84,47 @@ describe('AnalysisPanels — Guided UX', () => {
       ],
     };
     renderPanels(<AnalysisPanels data={data} tab="analysis" scenario={blankPlayerScenario} />);
-    expect(screen.getAllByText(/P1 \(P1\)/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/P2 \(P2\)/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/P1 — Row player/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/P2 — Column player/).length).toBeGreaterThan(0);
+    expect(screen.queryByText(/P2 \(P1\)/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/P1 \(P2\)/)).not.toBeInTheDocument();
+  });
+
+  /* 5b. Handles row_player=P2 and column_player=P1 with blank names */
+  it('handles row_player=P2 and column_player=P1 with role fallbacks and attributes utilities correctly', () => {
+    const p2RowData: FullAnalysisData = {
+      ...data,
+      payoff_matrix: {
+        ...data.payoff_matrix,
+        row_player: 'P2',
+        column_player: 'P1',
+      },
+    };
+    const blankPlayerScenario: Scenario = {
+      ...demoScenario,
+      players: [
+        { ...demoScenario.players[0], name: '' },
+        { ...demoScenario.players[1], name: '' },
+      ],
+    };
+    renderPanels(<AnalysisPanels data={p2RowData} tab="analysis" scenario={blankPlayerScenario} />);
+
+    // Row player fallback must be "P2 — Row player"
+    expect(screen.getAllByText(/P2 — Row player/).length).toBeGreaterThan(0);
+    // Column player fallback must be "P1 — Column player"
+    expect(screen.getAllByText(/P1 — Column player/).length).toBeGreaterThan(0);
+
+    // Contradictory labels MUST NOT exist
+    expect(screen.queryByText(/P2 \(P1\)/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/P1 \(P2\)/)).not.toBeInTheDocument();
+
+    // In CC outcome card, utilities[0] (76.50) is assigned to row player (P2 — Row player)
+    const ccHeader = screen.getByText('CC — Both Cooperate');
+    const ccCard = ccHeader.closest('.outcome-card')!;
+    expect(ccCard).toHaveTextContent('P2 — Row player');
+    expect(ccCard).toHaveTextContent('76.50');
+    expect(ccCard).toHaveTextContent('P1 — Column player');
+    expect(ccCard).toHaveTextContent('61.50');
   });
 
   /* 6. Missing cells render fallback without crashing */
@@ -120,13 +159,15 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.getAllByText('Pareto Frontier').length).toBeGreaterThan(0);
   });
 
-  /* 9. Localized Myanmar Prisoner’s Dilemma status */
-  it('localizes Prisoner’s Dilemma status in Myanmar mode without leaking raw English explanation', () => {
+  /* 9. Localized Myanmar Prisoner’s Dilemma status & refined utility wording */
+  it('localizes Prisoner’s Dilemma status and utility explanation in Myanmar mode', () => {
     window.localStorage.setItem('powershare-language', 'my');
     renderPanels(<AnalysisPanels data={data} tab="analysis" scenario={demoScenario} />);
 
-    // Myanmar localized PD status must be present
-    expect(screen.getByText(/Prisoner’s Dilemma တွေ့ရှိသည်/)).toBeInTheDocument();
+    // Myanmar localized PD title & status must be present
+    expect(screen.getAllByText(/အကျဉ်းသားနှစ်ဦး၏ အကျပ်အတည်း \(Prisoner’s Dilemma\)/).length).toBeGreaterThan(0);
+    // Refined utility explanation must be rendered
+    expect(screen.getByText(/Model အရ အကျိုးရရှိမှုအဆင့်ကို ဖော်ပြသည်/)).toBeInTheDocument();
     // Raw English explanation should not be displayed
     expect(screen.queryByText(/Strictly dominant strategies lead to/)).not.toBeInTheDocument();
   });
