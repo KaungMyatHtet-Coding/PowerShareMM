@@ -855,12 +855,12 @@ function Arbitration({
   const disagreement1 = result?.disagreement?.[1] ?? 0;
 
   // Energy allocation
-  const energy0 = selected?.allocation?.energy_kwh?.[0] ?? selected?.allocation?.energy_kwh?.p1;
-  const energy1 = selected?.allocation?.energy_kwh?.[1] ?? selected?.allocation?.energy_kwh?.p2;
+  const energy0 = selected?.allocation?.energy_kwh?.[0];
+  const energy1 = selected?.allocation?.energy_kwh?.[1];
 
   // Hours allocation
-  const hours0 = selected?.allocation?.hours?.[0] ?? selected?.allocation?.hours?.p1;
-  const hours1 = selected?.allocation?.hours?.[1] ?? selected?.allocation?.hours?.p2;
+  const hours0 = selected?.allocation?.hours?.[0];
+  const hours1 = selected?.allocation?.hours?.[1];
 
   // Cost shares
   const costShare0 =
