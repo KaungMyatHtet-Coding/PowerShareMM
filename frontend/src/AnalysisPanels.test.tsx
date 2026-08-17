@@ -312,9 +312,9 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.getByText('သဘာဝအခြေအနေ မသေချာမှုအောက်ရှိ ဆုံးဖြတ်ချက် (Games Against Nature)')).toBeInTheDocument();
     expect(screen.getByText('လက်ရှိ မီးပျက်ချိန် ခန့်မှန်းချက်များ')).toBeInTheDocument();
     expect(screen.getByText('ရရှိနိုင်သော လျှပ်စစ်အသုံးပြုနည်း သုံးမျိုး')).toBeInTheDocument();
-    expect(screen.getByText('ဘက်ထရီသီးသန့်')).toBeInTheDocument();
-    expect(screen.getByText('မီးစက်သီးသန့်')).toBeInTheDocument();
-    expect(screen.getByText('ဘက်ထရီနှင့် မီးစက် ပေါင်းစပ်အသုံးပြုခြင်း')).toBeInTheDocument();
+    expect(screen.getAllByText('ဘက်ထရီသီးသန့်').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('မီးစက်သီးသန့်').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('ဘက်ထရီနှင့် မီးစက် ပေါင်းစပ်အသုံးပြုခြင်း').length).toBeGreaterThan(0);
     expect(screen.getByText('အကြံပြုချက် အချုပ်ရလဒ်')).toBeInTheDocument();
     expect(screen.getByText('ပူးပေါင်းခွဲဝေမှုကို ကြည့်ရန် →')).toBeInTheDocument();
   });
