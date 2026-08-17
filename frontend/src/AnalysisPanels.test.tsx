@@ -513,6 +513,51 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(evCard).toHaveTextContent('Rank 2Battery onlyBATTERY_ONLY50.00');
   });
 
+  /* 24. Proves Regret Table renders backend data with zero browser-side derived winner or cell badges */
+  it('proves Regret Table renders backend data with zero browser-side derived winner or cell badges', () => {
+    // Deliberately inconsistent matrix: scores favor GENERATOR_ONLY=10, but recommended is BATTERY_ONLY
+    const inconsistentData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m) =>
+          m.id === 'MINIMAX_REGRET'
+            ? {
+                ...m,
+                scores: { BATTERY_ONLY: 70, GENERATOR_ONLY: 10, HYBRID: 15 },
+                recommended: ['BATTERY_ONLY'],
+              }
+            : m
+        ),
+      },
+    };
+    const { unmount } = renderPanels(<AnalysisPanels data={inconsistentData} tab="uncertainty" scenario={demoScenario} />);
+
+    // 1. Matrix values render directly from backend data
+    expect(screen.getAllByText('0.00').length).toBeGreaterThan(0);
+    expect(screen.getByText('30.00')).toBeInTheDocument();
+    expect(screen.getAllByText('70.00').length).toBeGreaterThan(0);
+
+    // 2. Maximum-regret values render directly from MINIMAX_REGRET scores
+    expect(screen.getAllByText('10.00').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('15.00').length).toBeGreaterThan(0);
+
+    // 3. Recommended badge uses backend recommended ID ('BATTERY_ONLY'), not the lowest score
+    const regretSec = screen.getByText('Beginner-Friendly Regret Table').closest('section')!;
+    expect(regretSec).toHaveTextContent('Battery only');
+    expect(regretSec).toHaveTextContent('Recommended');
+
+    // 4 & 5. Proves NO "Best in state" or "Lowest max regret" badges are rendered
+    expect(screen.queryByText('Best in state')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lowest max regret')).not.toBeInTheDocument();
+    expect(screen.queryByText('Best in State')).not.toBeInTheDocument();
+    expect(screen.queryByText('Lowest Regret')).not.toBeInTheDocument();
+
+    // 9. Explanatory note renders cleanly
+    expect(screen.getByText('Lower regret values mean less missed utility. The recommendation and maximum-regret scores shown here are supplied by the backend.')).toBeInTheDocument();
+    unmount();
+  });
+
   /* 12. Proves NO canonical hard-coded +9.77 or +0.62 commentary exists */
   it('contains zero hardcoded canonical +9.77 or +0.62 commentary', () => {
     renderPanels(<AnalysisPanels data={data} tab="analysis" scenario={demoScenario} />);

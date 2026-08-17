@@ -435,31 +435,14 @@ function Uncertainty({
   const isUniqueConsensus = validMethods > 0 && maxSupport === validMethods && topSupportedAlts.length === 1;
   const isJointConsensus = validMethods > 0 && maxSupport === validMethods && topSupportedAlts.length > 1;
 
-  // Section 7: Regret matrix processing
+  // Section 7: Regret matrix processing (Backend Authoritative)
   const regretData = data.uncertainty_analysis.regret_matrix || {};
   const altKeys = Object.keys(regretData);
   const stateKeys = Array.from(new Set(Object.values(regretData).flatMap((row) => Object.keys(row || {}))));
 
-  // Find lowest regret in each state column
-  const minRegretPerState = new Map<string, number>();
-  stateKeys.forEach((st) => {
-    let minVal = Infinity;
-    altKeys.forEach((alt) => {
-      const val = regretData[alt]?.[st];
-      if (val !== undefined && val < minVal) {
-        minVal = val;
-      }
-    });
-    minRegretPerState.set(st, minVal);
-  });
-
-  // Find Minimax Regret method score for each alternative (backend provided)
+  // Minimax Regret method score for each alternative (supplied directly by backend)
   const minimaxMethod = methods.find((m) => m.id === 'MINIMAX_REGRET');
   const minimaxScores = minimaxMethod?.scores || {};
-  let minMaxRegretVal = Infinity;
-  Object.values(minimaxScores).forEach((val) => {
-    if (val < minMaxRegretVal) minMaxRegretVal = val;
-  });
 
   // Hurwicz alpha calculation display
   const alphaVal = data.uncertainty_analysis.hurwicz_alpha ?? scenario?.uncertainty_fixture?.hurwicz_alpha ?? 0.6;
@@ -731,7 +714,7 @@ function Uncertainty({
         <h2>{t('regretTableTitle')}</h2>
         <p className="muted">{t('regretTableHowTo')}</p>
         <p className="note-box info-note" style={{ fontSize: '0.85rem' }}>
-          {t('regretExplain')}
+          {t('regretNote')}
         </p>
         <div className="table-responsive">
           <table className="data-table regret-table">
@@ -767,25 +750,14 @@ function Uncertainty({
                     </th>
                     {stateKeys.map((st) => {
                       const val = rowRegrets[st];
-                      const isBestInState = val === minRegretPerState.get(st);
                       return (
-                        <td key={st} className={isBestInState ? 'cell-best-state' : ''}>
+                        <td key={st}>
                           <strong>{val !== undefined ? utility(val) : '—'}</strong>
-                          {isBestInState && (
-                            <span className="cell-tag">{t('bestInStateBadge')}</span>
-                          )}
                         </td>
                       );
                     })}
-                    <td
-                      className={
-                        maxRegretVal === minMaxRegretVal ? 'cell-lowest-max-regret' : ''
-                      }
-                    >
+                    <td>
                       <strong>{maxRegretVal !== undefined ? utility(maxRegretVal) : '—'}</strong>
-                      {maxRegretVal === minMaxRegretVal && (
-                        <span className="cell-tag lowest-tag">{t('lowestRegretBadge')}</span>
-                      )}
                     </td>
                   </tr>
                 );
