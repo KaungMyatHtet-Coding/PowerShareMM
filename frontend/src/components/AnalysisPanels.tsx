@@ -1190,10 +1190,30 @@ function Simulation({
   };
 
   const formatAction = (actionId?: string) => {
-    if (!actionId) return '—';
+    if (!actionId) return t('notAvailableLabel');
     if (actionId === 'COOPERATE') return `${t('actionCooperateLabel')} (COOPERATE)`;
     if (actionId === 'CLAIM_MORE') return `${t('actionClaimMoreLabel')} (CLAIM_MORE)`;
     return actionId;
+  };
+
+  const formatNum = (val: unknown) => {
+    if (typeof val !== 'number' || !Number.isFinite(val)) return '—';
+    return val;
+  };
+
+  const formatTotal = (val: unknown) => {
+    if (typeof val !== 'number' || !Number.isFinite(val)) return t('notAvailableLabel');
+    return val;
+  };
+
+  const formatAvg = (val: unknown) => {
+    if (typeof val !== 'number' || !Number.isFinite(val)) return t('notAvailableLabel');
+    return val.toFixed(4);
+  };
+
+  const formatCoopRate = (val: unknown) => {
+    if (typeof val !== 'number' || !Number.isFinite(val)) return t('notAvailableLabel');
+    return `${(val * 100).toFixed(1)}%`;
   };
 
   const visibleHistory = showAllRounds ? history : history.slice(0, 5);
@@ -1331,10 +1351,10 @@ function Simulation({
                     <th scope="row">{roundNum}</th>
                     <td>{formatAction(p1Act)}</td>
                     <td>{formatAction(p2Act)}</td>
-                    <td>{p1Pay !== undefined ? p1Pay : '—'}</td>
-                    <td>{p2Pay !== undefined ? p2Pay : '—'}</td>
-                    <td>{p1Cum !== undefined ? p1Cum : '—'}</td>
-                    <td>{p2Cum !== undefined ? p2Cum : '—'}</td>
+                    <td>{formatNum(p1Pay)}</td>
+                    <td>{formatNum(p2Pay)}</td>
+                    <td>{formatNum(p1Cum)}</td>
+                    <td>{formatNum(p2Cum)}</td>
                   </tr>
                 );
               })}
@@ -1393,13 +1413,13 @@ function Simulation({
             <h3>{rowPlayerName} ({rowPlayerId})</h3>
             <ul className="res-list">
               <li>
-                <span>{t('totalPayoffLabel')}: <strong>{totalPayoffs[0] !== undefined ? totalPayoffs[0] : t('notAvailableLabel')}</strong></span>
+                <span>{t('totalPayoffLabel')}: <strong>{formatTotal(totalPayoffs[0])}</strong></span>
               </li>
               <li>
-                <span>{t('avgPayoffLabel')}: <strong>{averagePayoffs[0] !== undefined ? averagePayoffs[0].toFixed(4) : t('notAvailableLabel')}</strong></span>
+                <span>{t('avgPayoffLabel')}: <strong>{formatAvg(averagePayoffs[0])}</strong></span>
               </li>
               <li>
-                <span>{t('coopRateLabel')}: <strong>{cooperationRates[0] !== undefined ? `${(cooperationRates[0] * 100).toFixed(1)}%` : t('notAvailableLabel')}</strong></span>
+                <span>{t('coopRateLabel')}: <strong>{formatCoopRate(cooperationRates[0])}</strong></span>
               </li>
             </ul>
           </div>
@@ -1409,13 +1429,13 @@ function Simulation({
             <h3>{colPlayerName} ({colPlayerId})</h3>
             <ul className="res-list">
               <li>
-                <span>{t('totalPayoffLabel')}: <strong>{totalPayoffs[1] !== undefined ? totalPayoffs[1] : t('notAvailableLabel')}</strong></span>
+                <span>{t('totalPayoffLabel')}: <strong>{formatTotal(totalPayoffs[1])}</strong></span>
               </li>
               <li>
-                <span>{t('avgPayoffLabel')}: <strong>{averagePayoffs[1] !== undefined ? averagePayoffs[1].toFixed(4) : t('notAvailableLabel')}</strong></span>
+                <span>{t('avgPayoffLabel')}: <strong>{formatAvg(averagePayoffs[1])}</strong></span>
               </li>
               <li>
-                <span>{t('coopRateLabel')}: <strong>{cooperationRates[1] !== undefined ? `${(cooperationRates[1] * 100).toFixed(1)}%` : t('notAvailableLabel')}</strong></span>
+                <span>{t('coopRateLabel')}: <strong>{formatCoopRate(cooperationRates[1])}</strong></span>
               </li>
             </ul>
           </div>

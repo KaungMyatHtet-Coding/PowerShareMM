@@ -843,4 +843,117 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.queryByText(/9\.77/)).not.toBeInTheDocument();
     expect(screen.queryByText(/0\.62/)).not.toBeInTheDocument();
   });
+
+  /* 32. Additional Page 5 Edge Cases and Fallback Behavioral Tests */
+  it('handles missing seed, 1 round, empty history with summaries, missing actions, unknown actions, non-finite numbers, and blank player names safely', () => {
+    // 32a. Missing seed renders —
+    const noSeedData: FullAnalysisData = {
+      ...data,
+      repeated_game_result: {
+        ...demoSimData.repeated_game_result!,
+        seed: undefined as unknown as number,
+      },
+    };
+    const { unmount: u1 } = renderPanels(<AnalysisPanels data={noSeedData} tab="simulation" scenario={demoScenario} />);
+    expect(screen.getByText('Random Seed')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
+    u1();
+
+    // 32b. One-round history renders safely without duplicate latest story line
+    const oneRoundData: FullAnalysisData = {
+      ...data,
+      repeated_game_result: {
+        ...demoSimData.repeated_game_result!,
+        rounds: 1,
+        history: [
+          {
+            round: 1,
+            actions: ['COOPERATE', 'CLAIM_MORE'],
+            payoffs: [3, 5],
+            cumulative_payoffs: [3, 5],
+          },
+        ],
+      },
+    };
+    const { unmount: u2 } = renderPanels(<AnalysisPanels data={oneRoundData} tab="simulation" scenario={demoScenario} />);
+    expect(screen.getByText('Round-by-Round Story')).toBeInTheDocument();
+    expect(screen.getByText(/In Round 1, Shwe Mini Market \(Cooperate \(COOPERATE\)\)/)).toBeInTheDocument();
+    expect(screen.queryByText(/By Round/)).not.toBeInTheDocument();
+    u2();
+
+    // 32c. Empty history with populated summaries preserves summary cards & hides story
+    const emptyHistData: FullAnalysisData = {
+      ...data,
+      repeated_game_result: {
+        ...demoSimData.repeated_game_result!,
+        history: [],
+        total_payoffs: [10, 20],
+        average_payoffs: [1.0, 2.0],
+        cooperation_rates: [0.5, 0.5],
+      },
+    };
+    const { unmount: u3 } = renderPanels(<AnalysisPanels data={emptyHistData} tab="simulation" scenario={demoScenario} />);
+    expect(screen.getByText('Final Result Summary')).toBeInTheDocument();
+    expect(screen.getByText('10')).toBeInTheDocument();
+    expect(screen.getByText('20')).toBeInTheDocument();
+    expect(screen.queryByText('Round-by-Round Story')).not.toBeInTheDocument();
+    u3();
+
+    // 32d. Missing actions, unknown actions, missing payoffs, non-finite numbers, and blank player names
+    const edgeData: FullAnalysisData = {
+      ...data,
+      repeated_game_result: {
+        ...demoSimData.repeated_game_result!,
+        player_strategies: ['UNKNOWN_STRAT', 'TIT_FOR_TAT'],
+        total_payoffs: [NaN, Infinity],
+        average_payoffs: [NaN, -Infinity],
+        cooperation_rates: [1.0, NaN],
+        history: [
+          {
+            round: 1,
+            actions: [undefined as unknown as string, 'CUSTOM_ACTION'],
+            payoffs: [undefined as unknown as number, NaN],
+            cumulative_payoffs: [undefined as unknown as number, Infinity],
+          },
+          {
+            round: 1, // Duplicate round number
+            actions: ['SPECIAL_ACTION', 'COOPERATE'],
+            payoffs: [5, 5],
+            cumulative_payoffs: [10, 10],
+          },
+        ],
+      },
+    };
+
+    // Reversed scenario players with blank names
+    const reversedScenario: Scenario = {
+      ...demoScenario,
+      players: [
+        { id: 'P2', name: '  ', business_type: 'service', demand_kwh: 8, essential_kwh: 4, desired_hours: 4, outage_loss_mmk: 10000, urgency: 3, risk_preference: 0.5, preferred_cost_share: 0.5 },
+        { id: 'P1', name: '', business_type: 'retail', demand_kwh: 10, essential_kwh: 5, desired_hours: 5, outage_loss_mmk: 12000, urgency: 4, risk_preference: 0.5, preferred_cost_share: 0.5 },
+      ],
+    };
+
+    const { container, unmount: u4 } = renderPanels(<AnalysisPanels data={edgeData} tab="simulation" scenario={reversedScenario} />);
+
+    // Renders custom & unknown action IDs
+    expect(screen.getByText('CUSTOM_ACTION')).toBeInTheDocument();
+    expect(screen.getByText('SPECIAL_ACTION')).toBeInTheDocument();
+
+    // Cooperation rate 1.0 renders 100.0%
+    expect(screen.getByText('100.0%')).toBeInTheDocument();
+
+    // Non-finite numbers do not render NaN or Infinity
+    expect(screen.queryByText(/NaN/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Infinity/)).not.toBeInTheDocument();
+
+    // Blank player names fall back to default P1/P2 labels
+    expect(screen.getAllByText(/P1 — Row player/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/P2 — Column player/).length).toBeGreaterThan(0);
+
+    // No undefined text anywhere in DOM
+    expect(container.innerHTML).not.toContain('undefined');
+
+    u4();
+  });
 });
