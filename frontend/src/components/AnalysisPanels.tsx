@@ -818,7 +818,7 @@ function Arbitration({
 }) {
   const { t } = useI18n();
   const result = data.arbitration_result;
-  const selected = result?.selected || (data as any).arbitration_recommendation;
+  const selected = result?.selected;
 
   const rowPlayerId = data.payoff_matrix?.row_player || 'P1';
   const colPlayerId = data.payoff_matrix?.column_player || 'P2';
@@ -877,10 +877,10 @@ function Arbitration({
 
   // Qualifying candidates count
   const qualifyingCount =
-    result?.qualifying_candidates_count ?? (data as any).arbitration_candidates_count ?? 10440;
+    result?.qualifying_candidates_count ?? 10440;
 
   // Tie status
-  const isUnique = result?.ties ? result.ties.length === 0 : (selected as any)?.is_unique ?? true;
+  const isUnique = result?.ties ? result.ties.length === 0 : true;
 
   // Pure Nash Equilibrium ID for comparison table
   const pureNashId = data.pure_nash_equilibria?.[0]?.outcome_id || 'MM';

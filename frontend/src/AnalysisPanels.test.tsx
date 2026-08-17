@@ -679,7 +679,7 @@ describe('AnalysisPanels — Guided UX', () => {
       arbitration_result: {
         ...data.arbitration_result,
         no_solution: true,
-        selected: null as any,
+        selected: null,
       },
     };
     renderPanels(<AnalysisPanels data={noSolutionData} tab="arbitration" scenario={demoScenario} />);
