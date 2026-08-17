@@ -407,23 +407,38 @@ function Uncertainty({
     { id: 'LONG', duration_hours: 8, probability: 0.2 },
   ];
 
-  // Section 4: Aggregate recommendations
+  // Section 4: Aggregate recommendations (Refined semantics)
   const methods = data.uncertainty_analysis.methods || [];
-  const recCounts = new Map<string, number>();
+  const totalMethods = methods.length;
+
+  const supportCounts = new Map<string, number>();
+  let validMethods = 0;
+
   methods.forEach((m) => {
-    (m.recommended || []).forEach((rec) => {
-      recCounts.set(rec, (recCounts.get(rec) || 0) + 1);
-    });
+    // Deduplicate recommendations inside each method
+    const dedupedRecs = Array.from(new Set(m.recommended || []));
+    if (dedupedRecs.length > 0) {
+      validMethods += 1;
+      dedupedRecs.forEach((rec) => {
+        supportCounts.set(rec, (supportCounts.get(rec) || 0) + 1);
+      });
+    }
   });
 
-  const totalMethods = methods.length;
-  const topRec = Array.from(recCounts.entries()).sort((a, b) => b[1] - a[1])[0];
-  const isConsensus = topRec && topRec[1] === totalMethods;
+  const missingRecMethods = totalMethods - validMethods;
+
+  // Consensus state evaluation
+  const entries = Array.from(supportCounts.entries());
+  const maxSupport = entries.length > 0 ? Math.max(...entries.map(([, count]) => count)) : 0;
+  const topSupportedAlts = entries.filter(([, count]) => count === maxSupport).map(([alt]) => alt);
+
+  const isUniqueConsensus = validMethods > 0 && maxSupport === validMethods && topSupportedAlts.length === 1;
+  const isJointConsensus = validMethods > 0 && maxSupport === validMethods && topSupportedAlts.length > 1;
 
   // Section 7: Regret matrix processing
   const regretData = data.uncertainty_analysis.regret_matrix || {};
   const altKeys = Object.keys(regretData);
-  const stateKeys = altKeys.length > 0 ? Object.keys(regretData[altKeys[0]] || {}) : [];
+  const stateKeys = Array.from(new Set(Object.values(regretData).flatMap((row) => Object.keys(row || {}))));
 
   // Find lowest regret in each state column
   const minRegretPerState = new Map<string, number>();
@@ -513,27 +528,54 @@ function Uncertainty({
       {/* SECTION 4 — Overall Recommendation Summary */}
       <section className="card consensus-card">
         <h2>{t('consensusTitle')}</h2>
-        {isConsensus ? (
+
+        {validMethods === 0 ? (
+          <div className="consensus-banner warning">
+            <h3>{t('noMethodRecAvailable')}</h3>
+          </div>
+        ) : isUniqueConsensus ? (
           <div className="consensus-banner success">
             <h3>
               {t('consensusAllAgree')
-                .replace('{count}', String(totalMethods))
-                .replace('{total}', String(totalMethods))
-                .replace('{alt}', getAltTitle(topRec[0]))}
+                .replace('{count}', String(validMethods))
+                .replace('{total}', String(validMethods))
+                .replace('{alt}', getAltTitle(topSupportedAlts[0]))}
+            </h3>
+          </div>
+        ) : isJointConsensus ? (
+          <div className="consensus-banner success">
+            <h3>
+              {t('jointConsensusTitle').replace(
+                '{alts}',
+                topSupportedAlts.map((alt) => `${getAltTitle(alt)} (${alt})`).join(', ')
+              )}
             </h3>
           </div>
         ) : (
           <div className="consensus-banner warning">
             <h3>{t('consensusDisagreement')}</h3>
             <ul className="rec-breakdown">
-              {Array.from(recCounts.entries()).map(([alt, count]) => (
+              {entries.map(([alt, count]) => (
                 <li key={alt}>
-                  <strong>{getAltTitle(alt)} ({alt}):</strong> {count} method{count > 1 ? 's' : ''}
+                  <strong>{getAltTitle(alt)} ({alt}):</strong>{' '}
+                  {t('supportCountLabel')
+                    .replace('{count}', String(count))
+                    .replace('{total}', String(validMethods))
+                    .replace('{alt}', getAltTitle(alt))}
                 </li>
               ))}
             </ul>
           </div>
         )}
+
+        {missingRecMethods > 0 && (
+          <div className="note-box warning-note" style={{ marginTop: '0.5rem', fontSize: '0.85rem' }}>
+            {missingRecMethods === 1
+              ? t('methodsWithoutRecNote').replace('{count}', String(missingRecMethods))
+              : t('methodsWithoutRecNotePlural').replace('{count}', String(missingRecMethods))}
+          </div>
+        )}
+
         <p className="disclaimer-text">{t('disclaimerEducational')}</p>
       </section>
 
@@ -564,9 +606,19 @@ function Uncertainty({
 
             const isTopTied =
               rankedEntries.length > 1 && rankedEntries[0].val === rankedEntries[1].val;
-            const topAlt = rankedEntries[0]?.alt;
-            const recList = method.recommended || [];
-            const isRecMatched = topAlt && recList.includes(topAlt);
+            const recList = Array.from(new Set(method.recommended || []));
+
+            const topScoreVal = rankedEntries[0]?.val;
+            const topRankAlts =
+              topScoreVal !== undefined
+                ? rankedEntries.filter((e) => e.val === topScoreVal).map((e) => e.alt)
+                : [];
+
+            const isRecMatched =
+              recList.length === 0 ||
+              (recList.length > 0 &&
+                recList.every((rec) => topRankAlts.includes(rec)) &&
+                topRankAlts.every((alt) => recList.includes(alt)));
 
             return (
               <article className="card method-card" key={method.id}>

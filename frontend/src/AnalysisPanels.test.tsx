@@ -319,6 +319,200 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.getByText('ပူးပေါင်းခွဲဝေမှုကို ကြည့်ရန် →')).toBeInTheDocument();
   });
 
+
+  /* 17. Consolidated Behavioral Edge Cases for Page 3 Uncertainty UX */
+  it('handles split recommendations, missing recommendations, duplicate recommendations, and zero recommendations', () => {
+    // 17a. Split recommendations (4 HYBRID, 2 BATTERY_ONLY)
+    const splitData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m, idx) => ({
+          ...m,
+          recommended: idx < 4 ? ['HYBRID'] : ['BATTERY_ONLY'],
+        })),
+      },
+    };
+    const { unmount } = renderPanels(<AnalysisPanels data={splitData} tab="uncertainty" scenario={demoScenario} />);
+    expect(screen.getByText('The methods do not all agree. Review each method according to the decision attitude that matches your situation.')).toBeInTheDocument();
+    expect(screen.getByText(/4 of 6 methods with recommendations support Battery \+ generator\./)).toBeInTheDocument();
+    expect(screen.getByText(/2 of 6 methods with recommendations support Battery only\./)).toBeInTheDocument();
+    unmount();
+
+    // 17b. One method with missing recommendation
+    const missingOneData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m, idx) => ({
+          ...m,
+          recommended: idx === 0 ? [] : ['HYBRID'],
+        })),
+      },
+    };
+    const { unmount: unmount2 } = renderPanels(<AnalysisPanels data={missingOneData} tab="uncertainty" scenario={demoScenario} />);
+    expect(screen.getByText(/Current agreement: 5 of 5 methods recommend/)).toBeInTheDocument();
+    expect(screen.getByText(/Note: 1 method has no available recommendation\./)).toBeInTheDocument();
+    unmount2();
+
+    // 17c. Duplicate recommendation ID inside same method is deduplicated
+    const dupRecData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m) => ({
+          ...m,
+          recommended: ['HYBRID', 'HYBRID'],
+        })),
+      },
+    };
+    const { unmount: unmount3 } = renderPanels(<AnalysisPanels data={dupRecData} tab="uncertainty" scenario={demoScenario} />);
+    expect(screen.getByText(/Current agreement: 6 of 6 methods recommend Battery \+ generator\./)).toBeInTheDocument();
+    unmount3();
+
+    // 17d. All recommendations missing
+    const noRecData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m) => ({
+          ...m,
+          recommended: [],
+        })),
+      },
+    };
+    renderPanels(<AnalysisPanels data={noRecData} tab="uncertainty" scenario={demoScenario} />);
+    expect(screen.getByText('No method recommendation is available in the current response.')).toBeInTheDocument();
+  });
+
+  it('handles tied recommendations, joint consensus, and recommendation/score mismatches', () => {
+    // 18a. Tied recommendations across all methods produce joint consensus
+    const tiedRecData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m) => ({
+          ...m,
+          recommended: ['HYBRID', 'BATTERY_ONLY'],
+        })),
+      },
+    };
+    const { unmount } = renderPanels(<AnalysisPanels data={tiedRecData} tab="uncertainty" scenario={demoScenario} />);
+    expect(screen.getByText(/All available methods jointly support these tied alternatives: Battery \+ generator \(HYBRID\), Battery only \(BATTERY_ONLY\)/)).toBeInTheDocument();
+    unmount();
+
+    // 18b. Mismatch warning when backend recommendation contradicts presentation top score rank
+    const mismatchData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m) =>
+          m.id === 'EXPECTED_VALUE'
+            ? { ...m, recommended: ['BATTERY_ONLY'] } // Scores favor HYBRID=80 vs BATTERY_ONLY=55.5
+            : m
+        ),
+      },
+    };
+    renderPanels(<AnalysisPanels data={mismatchData} tab="uncertainty" scenario={demoScenario} />);
+    expect(screen.getByText('Note: The backend recommendation remains authoritative even if score ordering differs.')).toBeInTheDocument();
+  });
+
+  it('handles unknown alternative IDs, unknown method IDs, empty scores, and non-square regret matrix', () => {
+    // 19a. Unknown alternative ID & method ID
+    const customData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: [
+          ...data.uncertainty_analysis.methods,
+          {
+            id: 'CUSTOM_CRITERION',
+            scores: { UNKNOWN_ALT: 99.9, HYBRID: 80.0 },
+            recommended: ['UNKNOWN_ALT'],
+            ties: [],
+            explanation: 'Custom criterion explanation.',
+          },
+        ],
+        regret_matrix: {
+          ...data.uncertainty_analysis.regret_matrix,
+          UNKNOWN_ALT: { SHORT: 5, MEDIUM: 10, LONG: 15, EXTRA_STATE: 20 },
+        },
+      },
+    };
+    const { unmount } = renderPanels(<AnalysisPanels data={customData} tab="uncertainty" scenario={demoScenario} />);
+    expect(screen.getAllByText('CUSTOM_CRITERION').length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/UNKNOWN_ALT/).length).toBeGreaterThan(0);
+    expect(screen.getByText('EXTRA_STATE')).toBeInTheDocument();
+    unmount();
+
+    // 19b. Empty regret matrix and empty scores handle gracefully
+    const emptyMatrixData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        regret_matrix: {},
+        methods: [
+          {
+            id: 'EXPECTED_VALUE',
+            scores: {},
+            recommended: [],
+            ties: [],
+            explanation: 'No scores available.',
+          },
+        ],
+      },
+    };
+    renderPanels(<AnalysisPanels data={emptyMatrixData} tab="uncertainty" scenario={demoScenario} />);
+    expect(screen.getByText('No method recommendation is available in the current response.')).toBeInTheDocument();
+  });
+
+  it('proves all 5 descending criteria and 1 ascending Minimax Regret criterion rank correctly', () => {
+    renderPanels(<AnalysisPanels data={data} tab="uncertainty" scenario={demoScenario} />);
+
+    // EV descending: HYBRID (80), GENERATOR_ONLY (63.5), BATTERY_ONLY (55.5)
+    const evCard = screen.getByText('Probability-weighted average', { selector: 'h3' }).closest('.method-card')!;
+    expect(evCard).toHaveTextContent('Rank 1Battery + generatorHYBRID80.00');
+
+    // Wald descending: HYBRID (65), GENERATOR_ONLY (45), BATTERY_ONLY (20)
+    const waldCard = screen.getByText('Protect against the worst case', { selector: 'h3' }).closest('.method-card')!;
+    expect(waldCard).toHaveTextContent('Rank 1Battery + generatorHYBRID65.00');
+
+    // Maximax descending: HYBRID (90), BATTERY_ONLY (80), GENERATOR_ONLY (75)
+    const maximaxCard = screen.getByText('Focus on the best case', { selector: 'h3' }).closest('.method-card')!;
+    expect(maximaxCard).toHaveTextContent('Rank 1Battery + generatorHYBRID90.00');
+
+    // Laplace descending: HYBRID (80), GENERATOR_ONLY (63.33), BATTERY_ONLY (51.67)
+    const laplaceCard = screen.getByText('Treat all outage states equally', { selector: 'h3' }).closest('.method-card')!;
+    expect(laplaceCard).toHaveTextContent('Rank 1Battery + generatorHYBRID80.00');
+
+    // Hurwicz descending: HYBRID (80), GENERATOR_ONLY (63), BATTERY_ONLY (56)
+    const hurwiczCard = screen.getByText('Balance best and worst cases', { selector: 'h3' }).closest('.method-card')!;
+    expect(hurwiczCard).toHaveTextContent('Rank 1Battery + generatorHYBRID80.00');
+
+    // Minimax Regret ascending: HYBRID (15), GENERATOR_ONLY (35), BATTERY_ONLY (70)
+    const minimaxCard = screen.getByText('Limit the worst missed opportunity', { selector: 'h3' }).closest('.method-card')!;
+    expect(minimaxCard).toHaveTextContent('Rank 1Battery + generatorHYBRID15.00');
+  });
+
+  it('proves tie handling below first place in method cards', () => {
+    const tieBelowData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m) =>
+          m.id === 'EXPECTED_VALUE'
+            ? { ...m, scores: { HYBRID: 90, GENERATOR_ONLY: 50, BATTERY_ONLY: 50 } }
+            : m
+        ),
+      },
+    };
+    renderPanels(<AnalysisPanels data={tieBelowData} tab="uncertainty" scenario={demoScenario} />);
+    const evCard = screen.getByText('Probability-weighted average', { selector: 'h3' }).closest('.method-card')!;
+    expect(evCard).toHaveTextContent('Rank 1Battery + generatorHYBRID90.00');
+    expect(evCard).toHaveTextContent('Rank 2Generator onlyGENERATOR_ONLY50.00');
+    expect(evCard).toHaveTextContent('Rank 2Battery onlyBATTERY_ONLY50.00');
+  });
+
   /* 12. Proves NO canonical hard-coded +9.77 or +0.62 commentary exists */
   it('contains zero hardcoded canonical +9.77 or +0.62 commentary', () => {
     renderPanels(<AnalysisPanels data={data} tab="analysis" scenario={demoScenario} />);
