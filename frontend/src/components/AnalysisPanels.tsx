@@ -14,7 +14,7 @@ export function AnalysisPanels({
 }) {
   if (tab === 'analysis') return <Analysis data={data} onSelectTab={onSelectTab} scenario={scenario} />;
   if (tab === 'uncertainty') return <Uncertainty data={data} onSelectTab={onSelectTab} scenario={scenario} />;
-  if (tab === 'arbitration') return <Arbitration data={data} />;
+  if (tab === 'arbitration') return <Arbitration data={data} scenario={scenario} onSelectTab={onSelectTab} />;
   if (tab === 'simulation') return <Simulation data={data} />;
   return <Results data={data} />;
 }
@@ -807,6 +807,297 @@ function Uncertainty({
   );
 }
 
-function Arbitration({ data }: { data: FullAnalysisData }) { const { t } = useI18n(); const result = data.arbitration_result; const selected = result.selected; return <div className="stack"><h2>{t('nashArbitration')}</h2><p className="muted">{t('arbitrationDescription')}</p><div className="allocation-grid"><div className="card"><h3>{t('disagreement')}</h3><p>[{result.disagreement.join(', ')}]</p><p>{t('qualifyingCandidates')}: {result.qualifying_candidates_count.toLocaleString()}</p></div>{selected ? <div className="card success"><h3>{t('selectedAllocation')}</h3><p>{t('energy')}: {selected.allocation.energy_kwh.join(', ')} kWh</p><p>{t('hours')}: {selected.allocation.hours.join(', ')}</p><p>{t('costShares')}: {selected.cost_shares.map((share) => `${(share * 100).toFixed(0)}%`).join(' / ')}</p><p>{t('utilities')}: {selected.utilities.map(utility).join(' / ')}</p><p>{t('nashProduct')}: {selected.nash_product.toFixed(4)}</p><p>{result.ties.length ? `${t('ties')}: ${result.ties.join(', ')}` : t('uniqueMaximum')}</p></div> : <div className="card error"><h3>{t('noQualifyingAgreement')}</h3></div>}</div><ul>{result.explanations.map((text) => <li key={text}>{text}</li>)}</ul></div>; }
+function Arbitration({
+  data,
+  scenario,
+  onSelectTab,
+}: {
+  data: FullAnalysisData;
+  scenario?: Scenario;
+  onSelectTab?: (tab: WorkspaceTab) => void;
+}) {
+  const { t } = useI18n();
+  const result = data.arbitration_result;
+  const selected = result?.selected || (data as any).arbitration_recommendation;
+
+  const rowPlayerId = data.payoff_matrix?.row_player || 'P1';
+  const colPlayerId = data.payoff_matrix?.column_player || 'P2';
+
+  const rowPlayer = scenario?.players?.find((p) => p.id === rowPlayerId);
+  const colPlayer = scenario?.players?.find((p) => p.id === colPlayerId);
+
+  const rowPlayerName = rowPlayer?.name?.trim() || `P1 — Row player`;
+  const colPlayerName = colPlayer?.name?.trim() || `P2 — Column player`;
+
+  const isNoSolution = !selected || result?.no_solution;
+
+  if (isNoSolution) {
+    return (
+      <div className="stack guided-arbitration">
+        <section className="card error">
+          <h2>{t('noSolutionTitle')}</h2>
+          <p className="muted">{t('noSolutionMessage')}</p>
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('scenario')}>
+              {t('reviewScenarioBtn')}
+            </button>
+            <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('analysis')}>
+              {t('reviewAnalysisBtn')}
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  // Disagreement baseline values
+  const disagreement0 = result?.disagreement?.[0] ?? 0;
+  const disagreement1 = result?.disagreement?.[1] ?? 0;
+
+  // Energy allocation
+  const energy0 = selected?.allocation?.energy_kwh?.[0] ?? selected?.allocation?.energy_kwh?.p1;
+  const energy1 = selected?.allocation?.energy_kwh?.[1] ?? selected?.allocation?.energy_kwh?.p2;
+
+  // Hours allocation
+  const hours0 = selected?.allocation?.hours?.[0] ?? selected?.allocation?.hours?.p1;
+  const hours1 = selected?.allocation?.hours?.[1] ?? selected?.allocation?.hours?.p2;
+
+  // Cost shares
+  const costShare0 =
+    selected?.cost_shares?.[0] !== undefined ? Math.round(selected.cost_shares[0] * 100) : undefined;
+  const costShare1 =
+    selected?.cost_shares?.[1] !== undefined ? Math.round(selected.cost_shares[1] * 100) : undefined;
+
+  // Utilities
+  const utility0 = selected?.utilities?.[0];
+  const utility1 = selected?.utilities?.[1];
+
+  // Nash Product
+  const nashProductVal = selected?.nash_product;
+
+  // Qualifying candidates count
+  const qualifyingCount =
+    result?.qualifying_candidates_count ?? (data as any).arbitration_candidates_count ?? 10440;
+
+  // Tie status
+  const isUnique = result?.ties ? result.ties.length === 0 : (selected as any)?.is_unique ?? true;
+
+  // Pure Nash Equilibrium ID for comparison table
+  const pureNashId = data.pure_nash_equilibria?.[0]?.outcome_id || 'MM';
+
+  return (
+    <div className="stack guided-arbitration">
+      {/* SECTION 1 — Page Purpose */}
+      <section className="card intro-card">
+        <h2>{t('arbitrationTitle')}</h2>
+        <p className="muted" style={{ lineHeight: '1.6' }}>
+          {t('arbitrationIntroText')}
+        </p>
+        <div className="note-box info-note" style={{ marginTop: '0.75rem' }}>
+          <strong>Guide:</strong>
+          <ul style={{ margin: '0.25rem 0 0 1.25rem', padding: 0, fontSize: '0.85rem' }}>
+            <li>{t('arbitrationStep1')}</li>
+            <li>{t('arbitrationStep2')}</li>
+            <li>{t('arbitrationStep3')}</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* SECTION 2 — Who Receives What? (Per-Business Allocation Cards) */}
+      <section className="card">
+        <h2>{t('whoReceivesWhatTitle')}</h2>
+        <div className="allocation-cards-grid">
+          {/* Card 1: Row Player / P1 */}
+          <div className="card alloc-card">
+            <div className="alloc-header">
+              <h3>{rowPlayerName}</h3>
+              <code className="tech-id">{rowPlayerId} — Row player</code>
+            </div>
+            <ul className="alloc-list">
+              <li>
+                <span>{t('energy')}: <strong>{energy0 !== undefined ? `${energy0} kWh` : '—'}</strong></span>
+                <p className="muted-desc">{t('energyAllocExplanation')}</p>
+              </li>
+              <li>
+                <span>{t('hours')}: <strong>{hours0 !== undefined ? `${hours0} hrs` : '—'}</strong></span>
+                <p className="muted-desc">{t('hoursAllocExplanation')}</p>
+              </li>
+              <li>
+                <span>{t('costShares')}: <strong>{costShare0 !== undefined ? `${costShare0}%` : '—'}</strong></span>
+                <p className="muted-desc">{t('costShareAllocExplanation')}</p>
+              </li>
+              <li>
+                <span>{t('utilities')}: <strong>{utility0 !== undefined ? utility(utility0) : '—'}</strong></span>
+                <p className="muted-desc">{t('utilityAllocExplanation')}</p>
+              </li>
+            </ul>
+          </div>
+
+          {/* Card 2: Column Player / P2 */}
+          <div className="card alloc-card">
+            <div className="alloc-header">
+              <h3>{colPlayerName}</h3>
+              <code className="tech-id">{colPlayerId} — Column player</code>
+            </div>
+            <ul className="alloc-list">
+              <li>
+                <span>{t('energy')}: <strong>{energy1 !== undefined ? `${energy1} kWh` : '—'}</strong></span>
+                <p className="muted-desc">{t('energyAllocExplanation')}</p>
+              </li>
+              <li>
+                <span>{t('hours')}: <strong>{hours1 !== undefined ? `${hours1} hrs` : '—'}</strong></span>
+                <p className="muted-desc">{t('hoursAllocExplanation')}</p>
+              </li>
+              <li>
+                <span>{t('costShares')}: <strong>{costShare1 !== undefined ? `${costShare1}%` : '—'}</strong></span>
+                <p className="muted-desc">{t('costShareAllocExplanation')}</p>
+              </li>
+              <li>
+                <span>{t('utilities')}: <strong>{utility1 !== undefined ? utility(utility1) : '—'}</strong></span>
+                <p className="muted-desc">{t('utilityAllocExplanation')}</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3 — Simple Result Summary */}
+      <section className="card success-summary-card">
+        <h2>{t('recCoopAgreement')}</h2>
+        <ul className="rec-summary-list">
+          <li>
+            <strong>{rowPlayerName} ({rowPlayerId}):</strong> {energy0 ?? '—'} kWh for {hours0 ?? '—'} hrs, paying {costShare0 ?? '—'}% cost share (utility score: {utility0 !== undefined ? utility(utility0) : '—'}).
+          </li>
+          <li>
+            <strong>{colPlayerName} ({colPlayerId}):</strong> {energy1 ?? '—'} kWh for {hours1 ?? '—'} hrs, paying {costShare1 ?? '—'}% cost share (utility score: {utility1 !== undefined ? utility(utility1) : '—'}).
+          </li>
+          <li>{t('bothReceiveAboveDisagreement')}</li>
+          <li>{t('balancedBenefitModel')}</li>
+          <li>{isUnique ? t('uniqueMaxExplanation') : t('tiedMaxExplanation')}</li>
+        </ul>
+      </section>
+
+      {/* SECTION 4 — What Does Disagreement [0,0] Mean? */}
+      <section className="card">
+        <h2>{t('ifNoAgreementTitle')}</h2>
+        <p className="muted" style={{ lineHeight: '1.6' }}>
+          {t('disagreementExplanation')}
+        </p>
+        <div className="disagreement-grid" style={{ marginTop: '0.75rem' }}>
+          <div className="disagreement-item">
+            <strong>{rowPlayerName} ({rowPlayerId}):</strong> Disagreement baseline = {utility(disagreement0)}
+          </div>
+          <div className="disagreement-item">
+            <strong>{colPlayerName} ({colPlayerId}):</strong> Disagreement baseline = {utility(disagreement1)}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5 — Why Was This Plan Selected? */}
+      <section className="card">
+        <h2>Why Was This Plan Selected?</h2>
+        <div className="selection-reasons">
+          <div className="note-box info-note">
+            <p>{t('qualifyingCandidatesExplanation').replace('{count}', qualifyingCount.toLocaleString())}</p>
+          </div>
+          <div className="note-box success-note" style={{ marginTop: '0.5rem' }}>
+            <p>{isUnique ? t('uniqueMaxExplanation') : t('tiedMaxExplanation')}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 6 — Nash Product for Beginners */}
+      <section className="card">
+        <h2>{t('nashProductTitle')}</h2>
+        <p className="muted" style={{ lineHeight: '1.6' }}>
+          {t('nashProductExplanation')}
+        </p>
+        <div className="formula-box" style={{ margin: '0.75rem 0', padding: '0.75rem 1rem', background: 'var(--bg-muted)', borderRadius: '6px', fontFamily: 'monospace' }}>
+          Nash product = ({rowPlayerName} utility − {disagreement0}) × ({colPlayerName} utility − {disagreement1})
+        </div>
+        <div className="nash-score-box" style={{ fontSize: '1.1rem', fontWeight: 600, marginBottom: '0.5rem' }}>
+          {t('nashProduct')}: <span style={{ color: 'var(--primary-color)' }}>{nashProductVal !== undefined ? nashProductVal.toFixed(4) : '—'}</span>
+        </div>
+        <p className="note-box warning-note" style={{ fontSize: '0.85rem' }}>
+          {t('nashProductDisclaimer')}
+        </p>
+        {/* Expandable Academic Details */}
+        <details className="card raw-details" style={{ marginTop: '1rem' }}>
+          <summary className="glossary-summary">
+            <h3>{t('academicDetailsTitle')}</h3>
+          </summary>
+          <pre className="data-table" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
+            {JSON.stringify(result, null, 2)}
+          </pre>
+        </details>
+      </section>
+
+      {/* SECTION 7 — Arbitration vs One-Shot Nash Equilibrium */}
+      <section className="card">
+        <h2>{t('compEquilVsArbitrationTitle')}</h2>
+        <div className="table-responsive">
+          <table className="data-table comp-table">
+            <thead>
+              <tr>
+                <th scope="col">{t('compDimension')}</th>
+                <th scope="col">{t('compOneShotEquil')}</th>
+                <th scope="col">{t('compNashArb')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">{t('compHowDecided')}</th>
+                <td>{t('equilHowDecided')}</td>
+                <td>{t('arbHowDecided')}</td>
+              </tr>
+              <tr>
+                <th scope="row">{t('compWhatDecided')}</th>
+                <td>{t('equilWhatDecided')}</td>
+                <td>{t('arbWhatDecided')}</td>
+              </tr>
+              <tr>
+                <th scope="row">{t('compTarget')}</th>
+                <td>{t('equilTarget')} (Outcome: <code>{pureNashId}</code>)</td>
+                <td>{t('arbTarget')}</td>
+              </tr>
+              <tr>
+                <th scope="row">{t('compBenefit')}</th>
+                <td>{t('equilBenefit')}</td>
+                <td>{t('arbBenefit')}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* SECTION 8 — Real-Life Usefulness */}
+      <section className="card">
+        <h2>{t('practicalApplicationTitle')}</h2>
+        <p style={{ lineHeight: '1.6' }}>
+          {t('practicalExample').replace('{p1}', rowPlayerName).replace('{p2}', colPlayerName)}
+        </p>
+        <div className="note-box info-note" style={{ marginTop: '0.75rem', fontSize: '0.85rem' }}>
+          {t('practicalLimitation')}
+        </div>
+      </section>
+
+      {/* SECTION 9 — Next Actions (Navigation CTAs) */}
+      <section className="card next-step-card">
+        <h2>Next Actions</h2>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+          <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('scenario')}>
+            {t('reviewScenarioBtn')}
+          </button>
+          <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('analysis')}>
+            {t('reviewAnalysisBtn')}
+          </button>
+          <button type="button" className="cta-button primary-cta" onClick={() => onSelectTab?.('repeatedGame')}>
+            {t('viewRepeatedGameBtn')}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
 function Simulation({ data }: { data: FullAnalysisData }) { const { t } = useI18n(); return <div className="stack"><h2>{t('repeatedGameTitle')}</h2>{data.repeated_game_result ? <pre className="data-table">{JSON.stringify(data.repeated_game_result, null, 2)}</pre> : <div className="card"><p>{t('noRepeatedGame')}</p><p>{t('supportedStrategies')}: ALWAYS_COOPERATE, ALWAYS_CLAIM_MORE, TIT_FOR_TAT, FORGIVING_TIT_FOR_TAT, RANDOM.</p></div>}</div>; }
 function Results({ data }: { data: FullAnalysisData }) { const { t } = useI18n(); return <div className="stack"><h2>{t('recommendationTheory')}</h2><div className="card success"><h3>{t('cooperativeRecommendation')}</h3><p>{data.final_recommendation.explanation}</p><p>{t('outcomeId')}: {data.final_recommendation.outcome_id ?? t('arbitrationNotMm')}</p></div><h3>{t('explanations')}</h3><ul>{data.explanations.map((item) => <li key={item}>{item}</li>)}</ul><h3>{t('assumptionsScope')}</h3><ul><li>{t('exactlyTwoScope')}</li><li>{t('chapter17Excluded')}</li><li>{t('penaltiesScope')}</li><li>{t('decisionSupportScope')}</li><li>{t('stableBetterScope')}</li></ul>{data.warnings?.length ? <><h3>{t('warnings')}</h3><ul>{data.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></> : null}</div>; }

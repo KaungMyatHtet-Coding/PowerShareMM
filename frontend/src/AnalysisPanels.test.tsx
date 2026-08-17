@@ -558,6 +558,135 @@ describe('AnalysisPanels — Guided UX', () => {
     unmount();
   });
 
+
+  /* 25. Page 4 (Arbitration) 9-Section Guided Redesign Tests in English */
+  it('renders all 9 sections of the redesigned Arbitration page in English', () => {
+    const onSelectTab = vi.fn();
+    renderPanels(<AnalysisPanels data={data} tab="arbitration" onSelectTab={onSelectTab} scenario={demoScenario} />);
+
+    // Section 1: Page Purpose & 3-Step Guide
+    expect(screen.getByText('Fair sharing agreement for both businesses')).toBeInTheDocument();
+    expect(screen.getByText(/This page recommends how the two businesses can share limited electricity/)).toBeInTheDocument();
+    expect(screen.getByText('1. Compare with no agreement baseline.')).toBeInTheDocument();
+
+    // Section 2: Who Receives What? (Per-Business Allocation Cards)
+    expect(screen.getByText('Who Receives What?')).toBeInTheDocument();
+    expect(screen.getAllByText('Shwe Mini Market').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('TechCare Phone Service').length).toBeGreaterThan(0);
+    expect(screen.getByText('5.5 kWh')).toBeInTheDocument();
+    expect(screen.getByText('4.5 kWh')).toBeInTheDocument();
+    expect(screen.getByText('2 hrs')).toBeInTheDocument();
+    expect(screen.getByText('3 hrs')).toBeInTheDocument();
+    expect(screen.getByText('60%')).toBeInTheDocument();
+    expect(screen.getByText('40%')).toBeInTheDocument();
+    expect(screen.getByText('73.00')).toBeInTheDocument();
+    expect(screen.getByText('65.36')).toBeInTheDocument();
+    expect(screen.getAllByText(/A model score representing overall benefit and suitability. It is not money and is not electricity./).length).toBeGreaterThan(0);
+
+    // Section 3: Simple Result Summary
+    expect(screen.getByText('Recommended cooperative agreement')).toBeInTheDocument();
+    expect(screen.getByText('Both businesses receive utility above their no-agreement reference.')).toBeInTheDocument();
+
+    // Section 4: What Does Disagreement [0,0] Mean?
+    expect(screen.getByText('If the businesses cannot agree')).toBeInTheDocument();
+    expect(screen.getByText(/\[0,0\] is the verified reference utility for no agreement/)).toBeInTheDocument();
+
+    // Section 5: Why Was This Plan Selected?
+    expect(screen.getByText('Why Was This Plan Selected?')).toBeInTheDocument();
+    expect(screen.getByText(/The backend evaluated 10,440 candidates in this demo\./)).toBeInTheDocument();
+    expect(screen.getAllByText(/Only one qualifying plan achieved the highest backend-provided Nash product, so there is no tie\./).length).toBeGreaterThan(0);
+
+    // Section 6: Nash Product for Beginners
+    expect(screen.getByText('Nash Product for Beginners')).toBeInTheDocument();
+    expect(screen.getByText('4771.0714')).toBeInTheDocument();
+    expect(screen.getByText(/Note: Utility is a model score, and Nash product is not money/)).toBeInTheDocument();
+
+    // Section 7: Arbitration vs One-Shot Nash Equilibrium
+    expect(screen.getByText('Arbitration vs One-Shot Nash Equilibrium')).toBeInTheDocument();
+    expect(screen.getByText('How decisions are made')).toBeInTheDocument();
+    expect(screen.getByText('What is decided')).toBeInTheDocument();
+
+    // Section 8: Real-Life Usefulness
+    expect(screen.getByText('Practical Application')).toBeInTheDocument();
+    expect(screen.getByText(/This recommendation can help Shwe Mini Market and TechCare Phone Service discuss/)).toBeInTheDocument();
+
+    // Section 9: Next Actions (CTAs)
+    const reviewScenBtn = screen.getByRole('button', { name: 'Review Scenario' });
+    fireEvent.click(reviewScenBtn);
+    expect(onSelectTab).toHaveBeenCalledWith('scenario');
+
+    const reviewAnaBtn = screen.getByRole('button', { name: 'Review Analysis' });
+    fireEvent.click(reviewAnaBtn);
+    expect(onSelectTab).toHaveBeenCalledWith('analysis');
+
+    const viewRepBtn = screen.getByRole('button', { name: 'View Repeated Game' });
+    fireEvent.click(viewRepBtn);
+    expect(onSelectTab).toHaveBeenCalledWith('repeatedGame');
+  });
+
+  /* 26. Localized Arbitration Page in Myanmar Mode */
+  it('renders all Arbitration sections in Myanmar mode', () => {
+    window.localStorage.setItem('powershare-language', 'my');
+    renderPanels(<AnalysisPanels data={data} tab="arbitration" scenario={demoScenario} />);
+
+    expect(screen.getByText('လုပ်ငန်းနှစ်ခုအတွက် မျှတသော မျှဝေမှုသဘောတူညီချက်')).toBeInTheDocument();
+    expect(screen.getByText('မည်သူက မည်သည့်အရာ ရရှိသနည်း။')).toBeInTheDocument();
+    expect(screen.getByText('အကြံပြုထားသော ပူးပေါင်းဆောင်ရွက်မှု သဘောတူညီချက်')).toBeInTheDocument();
+    expect(screen.getByText('လုပ်ငန်းနှစ်ခု သဘောတူညီမှုမရပါက')).toBeInTheDocument();
+    expect(screen.getByText('Nash Product (ရှင်းလင်းချက်)')).toBeInTheDocument();
+    expect(screen.getByText('Arbitration နှင့် တစ်ကြိမ်သုံး Nash Equilibrium နှိုင်းယှဉ်ချက်')).toBeInTheDocument();
+    expect(screen.getByText('လက်တွေ့ အသုံးချမှု')).toBeInTheDocument();
+    expect(screen.getByText('Repeated Game ကို ကြည့်ရန်')).toBeInTheDocument();
+  });
+
+  /* 27. Player name mapping by ID, reversed players, and blank name fallbacks */
+  it('handles player name mapping by authoritative IDs, reversed players, and blank fallbacks in Arbitration', () => {
+    const reversedBlankScenario: Scenario = {
+      ...demoScenario,
+      players: [
+        { ...demoScenario.players[1], name: '' },
+        { ...demoScenario.players[0], name: '  ' },
+      ],
+    };
+    renderPanels(<AnalysisPanels data={data} tab="arbitration" scenario={reversedBlankScenario} />);
+
+    expect(screen.getAllByText(/P1 — Row player/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/P2 — Column player/).length).toBeGreaterThan(0);
+  });
+
+  /* 28. Handles non-[0,0] disagreement, negative disagreement, tied maxima, and no-solution state */
+  it('handles non-[0,0] disagreement, negative disagreement, tied maxima, and no-solution state gracefully', () => {
+    // 28a. Non-[0,0] and negative disagreement, tied maxima
+    const customArbData: FullAnalysisData = {
+      ...data,
+      arbitration_result: {
+        ...data.arbitration_result,
+        disagreement: [-10.5, 5.0],
+        ties: ['ALT_TIE_1'],
+        qualifying_candidates_count: 520,
+      },
+    };
+    const { unmount } = renderPanels(<AnalysisPanels data={customArbData} tab="arbitration" scenario={demoScenario} />);
+    expect(screen.getByText(/Disagreement baseline = -10\.50/)).toBeInTheDocument();
+    expect(screen.getByText(/Disagreement baseline = 5\.00/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Multiple qualifying plans achieved the same maximum Nash product\./).length).toBeGreaterThan(0);
+    expect(screen.getByText(/The backend evaluated 520 candidates in this demo\./)).toBeInTheDocument();
+    unmount();
+
+    // 28b. No-solution state
+    const noSolutionData: FullAnalysisData = {
+      ...data,
+      arbitration_result: {
+        ...data.arbitration_result,
+        no_solution: true,
+        selected: null as any,
+      },
+    };
+    renderPanels(<AnalysisPanels data={noSolutionData} tab="arbitration" scenario={demoScenario} />);
+    expect(screen.getByText('No mutually acceptable allocation found')).toBeInTheDocument();
+    expect(screen.getByText(/No mutually acceptable allocation was found under the current inputs/)).toBeInTheDocument();
+  });
+
   /* 12. Proves NO canonical hard-coded +9.77 or +0.62 commentary exists */
   it('contains zero hardcoded canonical +9.77 or +0.62 commentary', () => {
     renderPanels(<AnalysisPanels data={data} tab="analysis" scenario={demoScenario} />);
