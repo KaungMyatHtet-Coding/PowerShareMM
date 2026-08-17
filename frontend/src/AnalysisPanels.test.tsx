@@ -214,6 +214,111 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(onSelectTab).toHaveBeenCalledWith('arbitration');
   });
 
+
+  /* 13. Page 3 (Uncertainty) 9-Section Guided Redesign Tests */
+  it('renders all 9 sections of the redesigned Uncertainty page in English', () => {
+    const onSelectTab = vi.fn();
+    renderPanels(<AnalysisPanels data={data} tab="uncertainty" onSelectTab={onSelectTab} scenario={demoScenario} />);
+
+    // Section 1: Understanding Uncertainty
+    expect(screen.getByText('Choosing a power strategy under uncertain outages')).toBeInTheDocument();
+    expect(screen.getByText('Games Against Nature')).toBeInTheDocument();
+    expect(screen.getByText(/The exact duration of an outage is unknown/)).toBeInTheDocument();
+    expect(screen.getByText(/These six methods are not ranked from best method to worst method/)).toBeInTheDocument();
+
+    // Section 2: Current Outage Assumptions
+    expect(screen.getByText('Current Outage Assumptions')).toBeInTheDocument();
+    expect(screen.getByText('SHORT')).toBeInTheDocument();
+    expect(screen.getByText('MEDIUM')).toBeInTheDocument();
+    expect(screen.getByText('LONG')).toBeInTheDocument();
+
+    // Section 3: Three Available Power Strategies
+    expect(screen.getByText('Three Available Power Strategies')).toBeInTheDocument();
+    expect(screen.getByText('Battery only')).toBeInTheDocument();
+    expect(screen.getByText('Generator only')).toBeInTheDocument();
+    expect(screen.getByText('Battery + generator')).toBeInTheDocument();
+
+    // Section 4: Overall Recommendation Summary
+    expect(screen.getByText('Overall Recommendation Summary')).toBeInTheDocument();
+    expect(screen.getByText(/Current agreement: 6 of 6 methods recommend Battery \+ generator \(HYBRID\)\./)).toBeInTheDocument();
+    expect(screen.getByText('This is educational decision support, not automatic equipment control.')).toBeInTheDocument();
+
+    // Section 5: Six Decision-Method Cards
+    expect(screen.getByText('Six Decision-Method Cards')).toBeInTheDocument();
+    expect(screen.getByText('Probability-weighted average')).toBeInTheDocument();
+    expect(screen.getByText('Protect against the worst case')).toBeInTheDocument();
+    expect(screen.getByText('Focus on the best case')).toBeInTheDocument();
+    expect(screen.getByText('Treat all outage states equally')).toBeInTheDocument();
+    expect(screen.getByText('Limit the worst missed opportunity')).toBeInTheDocument();
+    expect(screen.getByText('Balance best and worst cases')).toBeInTheDocument();
+
+    // Minimax Regret lower is better
+    expect(screen.getByText('Lower regret is better')).toBeInTheDocument();
+
+    // Hurwicz Alpha weight display
+    expect(screen.getByText('60% best-case weight + 40% worst-case weight.')).toBeInTheDocument();
+
+    // Section 6: How to Compare Decision Methods
+    expect(screen.getByText('How to Compare Decision Methods')).toBeInTheDocument();
+    expect(screen.getByText(/A score of 80 in Expected Value is not directly comparable/)).toBeInTheDocument();
+
+    // Section 7: Beginner-Friendly Regret Table
+    expect(screen.getByText('Beginner-Friendly Regret Table')).toBeInTheDocument();
+    expect(screen.getByText(/How to read this table: Each value shows how much utility would be missed/)).toBeInTheDocument();
+
+    // Section 8: Academic / Raw Details
+    expect(screen.getByText('View raw academic data')).toBeInTheDocument();
+
+    // Section 9: Next Step CTA
+    const nextCta = screen.getByRole('button', { name: /View cooperative allocation/ });
+    expect(nextCta).toBeInTheDocument();
+    fireEvent.click(nextCta);
+    expect(onSelectTab).toHaveBeenCalledWith('arbitration');
+  });
+
+  /* 14. Minimax Regret sorts lowest regret first */
+  it('sorts Minimax Regret scores from lowest to highest regret', () => {
+    renderPanels(<AnalysisPanels data={data} tab="uncertainty" scenario={demoScenario} />);
+    const minimaxCard = screen.getByText('Limit the worst missed opportunity').closest('.method-card')!;
+    expect(minimaxCard).toHaveTextContent('Rank 1Battery + generatorHYBRID15.00');
+    expect(minimaxCard).toHaveTextContent('Rank 2Generator onlyGENERATOR_ONLY35.00');
+    expect(minimaxCard).toHaveTextContent('Rank 3Battery onlyBATTERY_ONLY70.00');
+  });
+
+  /* 15. Handles tied method scores with Joint 1st rank label */
+  it('handles tied scores in method cards with Joint 1st rank label', () => {
+    const tiedData: FullAnalysisData = {
+      ...data,
+      uncertainty_analysis: {
+        ...data.uncertainty_analysis,
+        methods: data.uncertainty_analysis.methods.map((m) =>
+          m.id === 'EXPECTED_VALUE'
+            ? { ...m, scores: { BATTERY_ONLY: 80, GENERATOR_ONLY: 80, HYBRID: 80 } }
+            : m
+        ),
+      },
+    };
+    renderPanels(<AnalysisPanels data={tiedData} tab="uncertainty" scenario={demoScenario} />);
+    const evCard = screen.getByText('Probability-weighted average').closest('.method-card')!;
+    expect(evCard).toHaveTextContent('Joint 1st');
+  });
+
+  /* 16. Localized Uncertainty page in Myanmar mode */
+  it('renders all Uncertainty sections in Myanmar mode', () => {
+    window.localStorage.setItem('powershare-language', 'my');
+    renderPanels(<AnalysisPanels data={data} tab="uncertainty" scenario={demoScenario} />);
+
+    expect(screen.getByText('မီးပျက်ချိန် မသေချာမှုအောက်တွင် လျှပ်စစ်အသုံးပြုနည်းကို ရွေးချယ်ခြင်း')).toBeInTheDocument();
+    expect(screen.getByText('သဘာဝအခြေအနေ မသေချာမှုအောက်ရှိ ဆုံးဖြတ်ချက် (Games Against Nature)')).toBeInTheDocument();
+    expect(screen.getByText('လက်ရှိ မီးပျက်ချိန် ခန့်မှန်းချက်များ')).toBeInTheDocument();
+    expect(screen.getByText('ရရှိနိုင်သော လျှပ်စစ်အသုံးပြုနည်း သုံးမျိုး')).toBeInTheDocument();
+    expect(screen.getByText('ဘက်ထရီသီးသန့်')).toBeInTheDocument();
+    expect(screen.getByText('မီးစက်သီးသန့်')).toBeInTheDocument();
+    expect(screen.getByText('ဘက်ထရီနှင့် မီးစက် ပေါင်းစပ်အသုံးပြုခြင်း')).toBeInTheDocument();
+    expect(screen.getByText('အကြံပြုချက် အချုပ်ရလဒ်')).toBeInTheDocument();
+    expect(screen.getByText('ပူးပေါင်းခွဲဝေမှုကို ကြည့်ရန် →')).toBeInTheDocument();
+  });
+
   /* 12. Proves NO canonical hard-coded +9.77 or +0.62 commentary exists */
   it('contains zero hardcoded canonical +9.77 or +0.62 commentary', () => {
     renderPanels(<AnalysisPanels data={data} tab="analysis" scenario={demoScenario} />);

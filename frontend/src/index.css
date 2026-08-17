@@ -194,3 +194,72 @@ footer { display:flex; justify-content:space-between; gap:1rem; padding:1.2rem 1
   .guided-actions { flex-direction: column; }
   .primary-action-wrap { width: 100%; min-width: unset; }
 }
+
+/* Page 3 Guided Uncertainty Redesign Styles */
+.guided-uncertainty { display: flex; flex-direction: column; gap: 1.25rem; }
+.guided-uncertainty .subtitle { font-size: 1.05rem; font-weight: 600; color: var(--primary); margin: -0.25rem 0 0.5rem; }
+.guided-uncertainty .info-note { background: rgba(59, 130, 246, 0.08); border-left: 4px solid var(--primary); padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.9rem; }
+.guided-uncertainty .warning-note { background: rgba(245, 158, 11, 0.1); border-left: 4px solid #f59e0b; padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.88rem; }
+
+.outage-states-grid, .alternatives-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-top: 0.75rem; }
+.state-card { background: var(--bg-surface-elevated, #1e293b); border: 1px solid var(--border); border-radius: 8px; padding: 0.85rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+.state-badge { background: var(--primary); color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; align-self: flex-start; }
+.state-detail { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.88rem; }
+
+.alt-card { background: var(--bg-surface-elevated, #1e293b); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; }
+.alt-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
+.alt-header h3 { margin: 0; font-size: 1.05rem; }
+.alt-header code { background: rgba(255, 255, 255, 0.08); padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+
+.consensus-card { border-top: 4px solid var(--primary); }
+.consensus-banner { padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem; }
+.consensus-banner.success { background: rgba(16, 185, 129, 0.12); border: 1px solid #10b981; color: #10b981; }
+.consensus-banner.warning { background: rgba(245, 158, 11, 0.12); border: 1px solid #f59e0b; color: #f59e0b; }
+.consensus-banner h3 { margin: 0; font-size: 1.1rem; }
+.rec-breakdown { margin: 0.5rem 0 0 1.25rem; padding: 0; font-size: 0.9rem; }
+.disclaimer-text { font-size: 0.82rem; color: var(--text-muted); margin: 0.5rem 0 0; font-style: italic; }
+
+.method-card { display: flex; flex-direction: column; gap: 0.65rem; border-top: 3px solid var(--primary); }
+.method-card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; flex-wrap: wrap; }
+.method-card-header h3 { margin: 0; font-size: 1.1rem; }
+.tech-id { font-size: 0.75rem; color: var(--text-muted); background: rgba(255, 255, 255, 0.06); padding: 0.15rem 0.4rem; border-radius: 4px; }
+.direction-badge { font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
+
+.method-question, .method-when { margin: 0; font-size: 0.88rem; line-height: 1.45; }
+.alpha-badge { font-size: 0.82rem; background: rgba(139, 92, 246, 0.15); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.3); padding: 0.35rem 0.65rem; border-radius: 6px; font-weight: 600; }
+
+.recommend-box { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; font-size: 0.85rem; margin-top: 0.25rem; }
+.recommend-label { font-weight: 700; }
+.recommend-badge { background: #10b981; color: #fff; font-size: 0.75rem; font-weight: 700; padding: 0.15rem 0.5rem; border-radius: 4px; }
+.warn-text { color: #f87171; font-size: 0.82rem; margin: 0; }
+
+.scores-list { display: flex; flex-direction: column; gap: 0.4rem; margin-top: 0.4rem; border-top: 1px solid var(--border); padding-top: 0.6rem; }
+.score-item { display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0.65rem; border-radius: 6px; background: rgba(255, 255, 255, 0.03); border: 1px solid transparent; font-size: 0.88rem; }
+.score-item.is-recommended { background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.3); }
+.score-left { display: flex; align-items: center; gap: 0.5rem; }
+.rank-pill { font-size: 0.7rem; font-weight: 700; background: var(--border); padding: 0.15rem 0.45rem; border-radius: 12px; }
+.alt-name { font-weight: 600; }
+.alt-code { font-size: 0.72rem; color: var(--text-muted); }
+.score-num { font-size: 1rem; color: var(--primary); }
+
+.method-footer-note { font-size: 0.78rem; color: var(--text-muted); margin: 0.4rem 0 0; font-style: italic; }
+
+.comp-table th, .comp-table td { padding: 0.65rem 0.85rem; font-size: 0.88rem; }
+.comp-table .badge.regret { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+.comp-table .badge.higher { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(96, 165, 250, 0.3); }
+
+.regret-table th, .regret-table td { padding: 0.65rem 0.85rem; text-align: center; font-size: 0.88rem; }
+.regret-table th[scope="row"] { text-align: left; }
+.regret-table tr.highlight-row { background: rgba(16, 185, 129, 0.06); }
+.cell-best-state { background: rgba(59, 130, 246, 0.1); }
+.cell-lowest-max-regret { background: rgba(16, 185, 129, 0.12); font-weight: 700; }
+.cell-tag { display: block; font-size: 0.68rem; color: #60a5fa; font-weight: 600; margin-top: 0.15rem; }
+.cell-tag.lowest-tag { color: #10b981; }
+
+.raw-details { border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 1rem; }
+.raw-summary { cursor: pointer; padding: 0.5rem 0; font-size: 0.95rem; }
+.raw-content { margin-top: 0.75rem; border-top: 1px solid var(--border); padding-top: 0.75rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+.next-step-card { border-left: 4px solid var(--primary); display: flex; flex-direction: column; gap: 0.75rem; }
+.cta-button.primary-cta { align-self: flex-start; padding: 0.65rem 1.25rem; font-size: 0.95rem; font-weight: 700; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: opacity 0.2s ease; }
+.cta-button.primary-cta:hover { opacity: 0.9; }
