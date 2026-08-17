@@ -1162,8 +1162,9 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.getAllByText(/CUSTOM_PARETO_PO_1/).length).toBeGreaterThan(0);
 
 
-    // Live non-fixture simulation status rendered accurately without educational disclosure
-    expect(screen.getByText('Live Dynamic Simulation')).toBeInTheDocument();
+    // Non-educational simulation status rendered accurately without educational disclosure
+    expect(screen.getByText('Non-educational simulation result')).toBeInTheDocument();
+    expect(screen.queryByText('Live Dynamic Simulation')).not.toBeInTheDocument();
     expect(screen.queryByText(/This educational repeated-game result illustrates behavior/)).not.toBeInTheDocument();
     expect(screen.getByText(/45 total score/)).toBeInTheDocument();
     expect(screen.getByText(/50 total score/)).toBeInTheDocument();
