@@ -1091,7 +1091,7 @@ function Arbitration({
           <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('analysis')}>
             {t('reviewAnalysisBtn')}
           </button>
-          <button type="button" className="cta-button primary-cta" onClick={() => onSelectTab?.('repeatedGame')}>
+          <button type="button" className="cta-button primary-cta" onClick={() => onSelectTab?.('simulation')}>
             {t('viewRepeatedGameBtn')}
           </button>
         </div>

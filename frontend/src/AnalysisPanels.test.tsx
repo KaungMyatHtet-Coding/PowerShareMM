@@ -621,7 +621,7 @@ describe('AnalysisPanels — Guided UX', () => {
 
     const viewRepBtn = screen.getByRole('button', { name: 'View Repeated Game' });
     fireEvent.click(viewRepBtn);
-    expect(onSelectTab).toHaveBeenCalledWith('repeatedGame');
+    expect(onSelectTab).toHaveBeenCalledWith('simulation');
   });
 
   /* 26. Localized Arbitration Page in Myanmar Mode */
