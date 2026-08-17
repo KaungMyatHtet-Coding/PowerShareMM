@@ -756,7 +756,7 @@ describe('AnalysisPanels — Guided UX', () => {
 
     // Section 8: Final Result Summary
     expect(screen.getByText('Final Result Summary')).toBeInTheDocument();
-    expect(screen.getByText('29')).toBeInTheDocument();
+    expect(screen.getAllByText('29').length).toBeGreaterThan(0);
     expect(screen.getByText('34')).toBeInTheDocument();
     expect(screen.getByText('0.9667')).toBeInTheDocument();
     expect(screen.getByText('1.1333')).toBeInTheDocument();
