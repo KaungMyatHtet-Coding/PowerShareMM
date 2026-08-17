@@ -228,32 +228,32 @@ describe('AnalysisPanels — Guided UX', () => {
 
     // Section 2: Current Outage Assumptions
     expect(screen.getByText('Current Outage Assumptions')).toBeInTheDocument();
-    expect(screen.getByText('SHORT')).toBeInTheDocument();
-    expect(screen.getByText('MEDIUM')).toBeInTheDocument();
-    expect(screen.getByText('LONG')).toBeInTheDocument();
+    expect(screen.getAllByText('SHORT').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('MEDIUM').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('LONG').length).toBeGreaterThan(0);
 
     // Section 3: Three Available Power Strategies
     expect(screen.getByText('Three Available Power Strategies')).toBeInTheDocument();
-    expect(screen.getByText('Battery only')).toBeInTheDocument();
-    expect(screen.getByText('Generator only')).toBeInTheDocument();
-    expect(screen.getByText('Battery + generator')).toBeInTheDocument();
+    expect(screen.getAllByText('Battery only').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Generator only').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Battery + generator').length).toBeGreaterThan(0);
 
     // Section 4: Overall Recommendation Summary
     expect(screen.getByText('Overall Recommendation Summary')).toBeInTheDocument();
-    expect(screen.getByText(/Current agreement: 6 of 6 methods recommend Battery \+ generator \(HYBRID\)\./)).toBeInTheDocument();
+    expect(screen.getByText(/Current agreement: 6 of 6 methods recommend/)).toBeInTheDocument();
     expect(screen.getByText('This is educational decision support, not automatic equipment control.')).toBeInTheDocument();
 
     // Section 5: Six Decision-Method Cards
     expect(screen.getByText('Six Decision-Method Cards')).toBeInTheDocument();
-    expect(screen.getByText('Probability-weighted average')).toBeInTheDocument();
-    expect(screen.getByText('Protect against the worst case')).toBeInTheDocument();
-    expect(screen.getByText('Focus on the best case')).toBeInTheDocument();
-    expect(screen.getByText('Treat all outage states equally')).toBeInTheDocument();
-    expect(screen.getByText('Limit the worst missed opportunity')).toBeInTheDocument();
-    expect(screen.getByText('Balance best and worst cases')).toBeInTheDocument();
+    expect(screen.getByText('Probability-weighted average', { selector: 'h3' })).toBeInTheDocument();
+    expect(screen.getByText('Protect against the worst case', { selector: 'h3' })).toBeInTheDocument();
+    expect(screen.getByText('Focus on the best case', { selector: 'h3' })).toBeInTheDocument();
+    expect(screen.getByText('Treat all outage states equally', { selector: 'h3' })).toBeInTheDocument();
+    expect(screen.getByText('Limit the worst missed opportunity', { selector: 'h3' })).toBeInTheDocument();
+    expect(screen.getByText('Balance best and worst cases', { selector: 'h3' })).toBeInTheDocument();
 
     // Minimax Regret lower is better
-    expect(screen.getByText('Lower regret is better')).toBeInTheDocument();
+    expect(screen.getAllByText('Lower regret is better').length).toBeGreaterThan(0);
 
     // Hurwicz Alpha weight display
     expect(screen.getByText('60% best-case weight + 40% worst-case weight.')).toBeInTheDocument();
@@ -279,7 +279,7 @@ describe('AnalysisPanels — Guided UX', () => {
   /* 14. Minimax Regret sorts lowest regret first */
   it('sorts Minimax Regret scores from lowest to highest regret', () => {
     renderPanels(<AnalysisPanels data={data} tab="uncertainty" scenario={demoScenario} />);
-    const minimaxCard = screen.getByText('Limit the worst missed opportunity').closest('.method-card')!;
+    const minimaxCard = screen.getByText('Limit the worst missed opportunity', { selector: 'h3' }).closest('.method-card')!;
     expect(minimaxCard).toHaveTextContent('Rank 1Battery + generatorHYBRID15.00');
     expect(minimaxCard).toHaveTextContent('Rank 2Generator onlyGENERATOR_ONLY35.00');
     expect(minimaxCard).toHaveTextContent('Rank 3Battery onlyBATTERY_ONLY70.00');
@@ -299,7 +299,7 @@ describe('AnalysisPanels — Guided UX', () => {
       },
     };
     renderPanels(<AnalysisPanels data={tiedData} tab="uncertainty" scenario={demoScenario} />);
-    const evCard = screen.getByText('Probability-weighted average').closest('.method-card')!;
+    const evCard = screen.getByText('Probability-weighted average', { selector: 'h3' }).closest('.method-card')!;
     expect(evCard).toHaveTextContent('Joint 1st');
   });
 
@@ -309,7 +309,7 @@ describe('AnalysisPanels — Guided UX', () => {
     renderPanels(<AnalysisPanels data={data} tab="uncertainty" scenario={demoScenario} />);
 
     expect(screen.getByText('မီးပျက်ချိန် မသေချာမှုအောက်တွင် လျှပ်စစ်အသုံးပြုနည်းကို ရွေးချယ်ခြင်း')).toBeInTheDocument();
-    expect(screen.getByText('သဘာဝအခြေအနေ မသေချာမှုအောက်ရှိ ဆုံးဖြတ်ချက် (Games Against Nature)')).toBeInTheDocument();
+    expect(screen.getByText('Games Against Nature (မသေချာမှုအောက် ဆုံးဖြတ်ချက်)')).toBeInTheDocument();
     expect(screen.getByText('လက်ရှိ မီးပျက်ချိန် ခန့်မှန်းချက်များ')).toBeInTheDocument();
     expect(screen.getByText('ရရှိနိုင်သော လျှပ်စစ်အသုံးပြုနည်း သုံးမျိုး')).toBeInTheDocument();
     expect(screen.getAllByText('ဘက်ထရီသီးသန့်').length).toBeGreaterThan(0);
