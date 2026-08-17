@@ -956,24 +956,24 @@ describe('AnalysisPanels — Guided UX', () => {
 
     u4();
   });
-  /* 33. Results / Theory Redesign Guided Report */
-  it('renders all 12 sections of the redesigned Results / Theory report in English and Myanmar with edge case safety', () => {
+  /* 33. Results / Theory Redesign — Honest Zero-Fallback Guided Report */
+  it('renders all 12 sections of the redesigned Results / Theory report in English and Myanmar with zero fabricated fallbacks', () => {
     const onSelectTabSpy = vi.fn();
 
-    // 1. English Render
     const recData: FullAnalysisData = {
       ...demoSimData,
       final_recommendation: {
-        outcome_id: 'OUTCOME_001',
+        outcome_id: 'CUSTOM_OUTCOME_001',
         energy_kwh: [5.5, 4.5],
         hours: [2, 3],
         cost_shares: [0.6, 0.4],
         matrix_basis_status: 'VERIFIED_FIXTURE',
-        arbitration_status: 'VERIFIED_FIXTURE',
-        explanation: 'Cooperative sharing agreement based on Nash arbitration.',
+        arbitration_status: 'CANONICAL_V1_1',
+        explanation: 'Cooperative sharing agreement based on Nash bargaining.',
       },
     };
 
+    // 1. English Render
     const { container, unmount } = renderPanels(
       <AnalysisPanels data={recData} tab="results" scenario={demoScenario} onSelectTab={onSelectTabSpy} />
     );
@@ -985,13 +985,16 @@ describe('AnalysisPanels — Guided UX', () => {
 
     // Section 2: Final Decision Summary
     expect(screen.getByText('Final Decision Summary & Recommendation')).toBeInTheDocument();
-    expect(screen.getByText('Source: Nash Arbitration')).toBeInTheDocument();
+    expect(screen.getByText('Recommendation Source: VERIFIED_FIXTURE')).toBeInTheDocument();
+    expect(screen.getByText('CANONICAL_V1_1')).toBeInTheDocument();
+    expect(screen.getByText('CUSTOM_OUTCOME_001')).toBeInTheDocument();
 
-    // Section 3: Two-Store Input Data Provenance
+    // Section 3: Two-Store Input Data Provenance (User inputs only)
     expect(screen.getByText('Supplied Input Data for the Two Stores')).toBeInTheDocument();
     expect(screen.getByText('Requested Energy')).toBeInTheDocument();
     expect(screen.getByText('Minimum Essential Need')).toBeInTheDocument();
     expect(screen.getByText('Desired Operating Hours')).toBeInTheDocument();
+    expect(screen.getByText('Shared Resource Capacity')).toBeInTheDocument();
 
     // Section 4: Results from Pages 2–5
     expect(screen.getByText('Key Results Across All Four Analytical Pages')).toBeInTheDocument();
@@ -999,7 +1002,6 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.getByText('Page 3 — Uncertainty Analysis (Games Against Nature)')).toBeInTheDocument();
     expect(screen.getByText('Page 4 — Fair Arbitration (Nash Bargaining Solution)')).toBeInTheDocument();
     expect(screen.getByText('Page 5 — Repeated Game Simulation (Interactive Behavior)')).toBeInTheDocument();
-    expect(screen.getByText(/This educational repeated-game result illustrates behavior over several rounds/)).toBeInTheDocument();
 
     // Section 5: Decision Comparison Table
     expect(screen.getByText('Side-by-Side Comparison of Decision Criteria')).toBeInTheDocument();
@@ -1015,16 +1017,22 @@ describe('AnalysisPanels — Guided UX', () => {
     expect(screen.getByText('How the System Produces the Decision Report')).toBeInTheDocument();
     expect(screen.getByText(/1\. Read scenario data/)).toBeInTheDocument();
 
-    // Section 9: Assumptions & Limitations
+    // Section 9: Assumptions & Limitations (Prototype Disagreement Baseline [0,0] moved here)
     expect(screen.getByText('Assumptions and Model Limitations')).toBeInTheDocument();
-    expect(screen.getByText(/Designed strictly for two participating businesses/)).toBeInTheDocument();
+    expect(screen.getByText('Prototype Disagreement Baseline [0,0]:')).toBeInTheDocument();
+    expect(screen.getByText(/Assumes zero power utility baseline \[0,0\] when no agreement is reached/)).toBeInTheDocument();
 
     // Section 10: Future Development
     expect(screen.getByText('Future Development (Not Currently Implemented)')).toBeInTheDocument();
     expect(screen.getAllByText('Not currently implemented').length).toBeGreaterThan(0);
 
-    // Section 11: Academic Details (collapsed details element)
-    expect(screen.getByText('Academic details, formulas and raw data')).toBeInTheDocument();
+    // Section 11: Academic Details (Explicitly asserting closed details element)
+    const summaryText = screen.getByText('Academic details, formulas and raw data');
+    expect(summaryText).toBeInTheDocument();
+    const detailsElem = summaryText.closest('details');
+    expect(detailsElem).not.toBeNull();
+    expect(detailsElem).not.toHaveAttribute('open');
+    expect((detailsElem as HTMLDetailsElement).open).toBe(false);
 
     // Section 12: Next Actions CTA Buttons
     const editScenarioBtn = screen.getByRole('button', { name: 'Edit Scenario' });
@@ -1045,47 +1053,129 @@ describe('AnalysisPanels — Guided UX', () => {
     // 2. Myanmar Mode Test
     window.localStorage.setItem('powershare-language', 'my');
     document.documentElement.lang = 'my';
-    const { unmount: u2 } = renderPanels(<AnalysisPanels data={demoSimData} tab="results" scenario={demoScenario} />);
+    const { unmount: u2 } = renderPanels(<AnalysisPanels data={recData} tab="results" scenario={demoScenario} />);
     expect(screen.getByText('လုပ်ငန်းနှစ်ခုအနေဖြင့် မည်သည့်လျှပ်စစ်မျှဝေမှုအစီအစဉ်ကို စဉ်းစားသင့်သနည်း')).toBeInTheDocument();
     expect(screen.getByText('နောက်ဆုံး ဆုံးဖြတ်ချက် အကျဉ်းချုပ်နှင့် အကြံပြုချက်')).toBeInTheDocument();
     u2();
     window.localStorage.removeItem('powershare-language');
     document.documentElement.lang = 'en';
+  });
 
-    // 3. Edge Cases: Missing recommendation, null outcome_id, reversed scenario.players, blank names
-    const edgeData: FullAnalysisData = {
-      ...demoSimData,
+  /* 34. Results / Theory Edge Case Safety & Zero-Fallback Assertions */
+  it('proves zero fabricated fallbacks for missing, null, or empty backend result sections', () => {
+    const emptyBackendData: FullAnalysisData = {
+      scenario_id: 'empty_demo',
+      outcomes: [],
+      payoff_matrix: undefined as unknown as FullAnalysisData['payoff_matrix'],
+      dominated_strategies: [],
+      best_responses: {},
+      pure_nash_equilibria: [],
+      pareto_optimal_outcomes: [],
+      prisoners_dilemma: { detected: false, failed_conditions: [] },
+      uncertainty_analysis: {
+        fixture_type: 'custom',
+        probability_total: 1.0,
+        hurwicz_alpha: 0.5,
+        regret_matrix: {},
+        methods: [],
+      },
+      arbitration_result: {
+        disagreement: [0, 0],
+        selected: null,
+        ties: [],
+        qualifying_candidates_count: 0,
+        no_solution: true,
+        verification_status: 'NONE',
+        explanations: [],
+      },
+      repeated_game_result: null,
       final_recommendation: {
         outcome_id: null,
         energy_kwh: [],
         hours: [],
         cost_shares: [],
-        matrix_basis_status: 'NONE',
-        arbitration_status: 'NONE',
-        explanation: 'No single recommendation available.',
+        matrix_basis_status: '',
+        arbitration_status: '',
+        explanation: 'No recommendation available.',
+      },
+      explanations: [],
+    };
+
+    const { container, unmount } = renderPanels(<AnalysisPanels data={emptyBackendData} tab="results" scenario={demoScenario} />);
+
+    // 1. Missing Strategic Result does NOT display hard-coded 1.0, 1.0, 8.0, 6.0, MM or CC
+    expect(screen.getByText('No strategic analysis result available.')).toBeInTheDocument();
+    expect(screen.queryByText('1.0, 1.0')).not.toBeInTheDocument();
+    expect(screen.queryByText('8.0, 6.0')).not.toBeInTheDocument();
+
+    // 2. Empty uncertainty methods displays specific empty methods message, NOT 6 decision criteria
+    expect(screen.getByText('No uncertainty decision criteria were supplied.')).toBeInTheDocument();
+    expect(screen.queryByText(/6 decision criteria/)).not.toBeInTheDocument();
+
+    // 3. Null selected arbitration allocation does NOT display 5.5 kWh or 2 hrs
+    expect(screen.getByText('No selected arbitration allocation was supplied.')).toBeInTheDocument();
+    expect(screen.queryByText('5.5 kWh')).not.toBeInTheDocument();
+    expect(screen.queryByText('2 hrs')).not.toBeInTheDocument();
+
+    // 4. Null repeated_game_result displays empty message and does NOT display educational-pd-001 or 30 rounds
+    expect(screen.getByText('No repeated game simulation result available.')).toBeInTheDocument();
+    expect(screen.queryByText('educational-pd-001')).not.toBeInTheDocument();
+    expect(screen.queryByText(/30 rounds/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/This educational repeated-game result illustrates behavior/)).not.toBeInTheDocument();
+
+    // 5. Missing final recommendation outcome_id displays fallback warning card, NOT fabricated winner
+    expect(screen.getByText('Multiple Decision Perspectives')).toBeInTheDocument();
+
+    // 6. DOM safety checks
+    expect(container.innerHTML).not.toContain('undefined');
+    expect(container.innerHTML).not.toContain('NaN');
+    expect(container.innerHTML).not.toContain('Infinity');
+
+    unmount();
+  });
+
+  /* 35. Non-canonical backend identifiers and fixture status flags render accurately */
+  it('renders non-canonical Nash equilibria, non-CC Pareto outcomes, non-fixture simulation flags, and closed details element', () => {
+    const customData: FullAnalysisData = {
+      ...demoSimData,
+      pure_nash_equilibria: [{ outcome_id: 'CUSTOM_EQUILIBRIUM_NE_1', utilities: [5, 5] }],
+      pareto_optimal_outcomes: [{ outcome_id: 'CUSTOM_PARETO_PO_1', utilities: [9, 7] }],
+      repeated_game_result: {
+        fixture_id: 'live-sim-99',
+        educational_fixture: false,
+        rounds: 15,
+        seed: 123,
+        player_strategies: ['STRAT_A', 'STRAT_B'],
+        history: [],
+        total_payoffs: [45, 50],
+        average_payoffs: [3.0, 3.33],
+        cooperation_rates: [0.8, 0.6],
       },
     };
 
-    const reversedScenario: Scenario = {
-      ...demoScenario,
-      players: [
-        { id: 'P2', name: '  ', business_type: 'service', demand_kwh: 8, essential_kwh: 4, desired_hours: 4, outage_loss_mmk: 10000, urgency: 3, risk_preference: 0.5, preferred_cost_share: 0.5 },
-        { id: 'P1', name: '', business_type: 'retail', demand_kwh: 10, essential_kwh: 5, desired_hours: 5, outage_loss_mmk: 12000, urgency: 4, risk_preference: 0.5, preferred_cost_share: 0.5 },
-      ],
-    };
+    const { container, unmount } = renderPanels(<AnalysisPanels data={customData} tab="results" scenario={demoScenario} />);
 
-    const { container: edgeContainer, unmount: u3 } = renderPanels(
-      <AnalysisPanels data={edgeData} tab="results" scenario={reversedScenario} />
-    );
+    // Custom Nash Equilibrium ID rendered without MM substitution
+    expect(screen.getAllByText(/CUSTOM_EQUILIBRIUM_NE_1/).length).toBeGreaterThan(0);
 
-    // Displays no single recommendation warning
-    expect(screen.getByText('Multiple Decision Perspectives')).toBeInTheDocument();
+    // Custom Pareto ID rendered without CC substitution
+    expect(screen.getAllByText(/CUSTOM_PARETO_PO_1/).length).toBeGreaterThan(0);
 
-    // Blank player names fall back safely
-    expect(edgeContainer.innerHTML).not.toContain('undefined');
-    expect(edgeContainer.innerHTML).not.toContain('NaN');
-    expect(edgeContainer.innerHTML).not.toContain('Infinity');
 
-    u3();
+    // Live non-fixture simulation status rendered accurately without educational disclosure
+    expect(screen.getByText('Live Dynamic Simulation')).toBeInTheDocument();
+    expect(screen.queryByText(/This educational repeated-game result illustrates behavior/)).not.toBeInTheDocument();
+    expect(screen.getByText(/45 total score/)).toBeInTheDocument();
+    expect(screen.getByText(/50 total score/)).toBeInTheDocument();
+
+    // Raw details explicitly asserted closed
+    const summaryText = screen.getByText('Academic details, formulas and raw data');
+    const detailsElem = summaryText.closest('details') as HTMLDetailsElement;
+    expect(detailsElem.open).toBe(false);
+
+    expect(container.innerHTML).not.toContain('undefined');
+    expect(container.innerHTML).not.toContain('NaN');
+
+    unmount();
   });
 });

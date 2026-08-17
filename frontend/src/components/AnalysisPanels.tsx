@@ -1508,15 +1508,23 @@ function Results({
   const uncertRes = data.uncertainty_analysis;
   const simRes = data.repeated_game_result;
 
-  const cellMM = data.payoff_matrix?.cells?.find((c) => c.outcome_id === 'MM' || (c.row_strategy === 'CLAIM_MORE' && c.column_strategy === 'CLAIM_MORE'));
-  const cellCC = data.payoff_matrix?.cells?.find((c) => c.outcome_id === 'CC' || (c.row_strategy === 'COOPERATE' && c.column_strategy === 'COOPERATE'));
-
-  const hasRec = rec && (rec.outcome_id || (rec.energy_kwh && rec.energy_kwh.length > 0));
+  const hasRec = rec && Boolean(rec.outcome_id || (rec.energy_kwh && rec.energy_kwh.length > 0));
 
   const formatNumVal = (val: unknown, suffix = '') => {
     if (typeof val !== 'number' || !Number.isFinite(val)) return t('notAvailableLabel');
     return `${val}${suffix}`;
   };
+
+  const formatArrayNum = (arr: number[] | undefined, index: number, suffix = '') => {
+    if (!arr || arr[index] === undefined || typeof arr[index] !== 'number' || !Number.isFinite(arr[index])) {
+      return t('notAvailableLabel');
+    }
+    return `${arr[index]}${suffix}`;
+  };
+
+  // Generic Strategic Analysis formatting (No hard-coded MM / CC fallbacks)
+  const nashEquilibriaIds = data.pure_nash_equilibria?.map((eq) => eq.outcome_id).join(', ');
+  const paretoOptimalIds = data.pareto_optimal_outcomes?.map((po) => po.outcome_id).join(', ');
 
   return (
     <div className="stack guided-results-report">
@@ -1536,13 +1544,13 @@ function Results({
         <h2>{t('finalDecisionSummaryTitle')}</h2>
         {hasRec ? (
           <div className="card recommendation-summary-card success">
-            <div className="rec-header">
-              <span className="badge success-badge">{rec.arbitration_status || 'VERIFIED_FIXTURE'}</span>
-              <span className="rec-source-tag">Source: Nash Arbitration</span>
+            <div className="rec-header" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <span className="badge success-badge">{rec.arbitration_status || t('notAvailableLabel')}</span>
+              <span className="rec-source-tag">{t('recSourceLabel')}: {rec.matrix_basis_status || t('notAvailableLabel')}</span>
             </div>
             <h3 style={{ marginTop: '0.5rem' }}>{t('recCoopAgreement')}</h3>
             <p className="rec-explanation" style={{ lineHeight: '1.6', fontSize: '0.95rem' }}>
-              {rec.explanation}
+              {rec.explanation || t('notAvailableLabel')}
             </p>
             <div className="rec-details-grid" style={{ marginTop: '0.75rem', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
               <div className="card item-card">
@@ -1552,13 +1560,13 @@ function Results({
               <div className="card item-card">
                 <span className="muted-desc">{rowPlayerName} ({rowPlayerId})</span>
                 <strong>
-                  {formatNumVal(rec.energy_kwh?.[0], ' kWh')}, {formatNumVal(rec.hours?.[0], ' hrs')}, {formatNumVal(rec.cost_shares?.[0] !== undefined ? rec.cost_shares[0] * 100 : undefined, '%')} cost
+                  {formatArrayNum(rec.energy_kwh, 0, ' kWh')}, {formatArrayNum(rec.hours, 0, ' hrs')}, {rec.cost_shares?.[0] !== undefined ? `${rec.cost_shares[0] * 100}% cost` : t('notAvailableLabel')}
                 </strong>
               </div>
               <div className="card item-card">
                 <span className="muted-desc">{colPlayerName} ({colPlayerId})</span>
                 <strong>
-                  {formatNumVal(rec.energy_kwh?.[1], ' kWh')}, {formatNumVal(rec.hours?.[1], ' hrs')}, {formatNumVal(rec.cost_shares?.[1] !== undefined ? rec.cost_shares[1] * 100 : undefined, '%')} cost
+                  {formatArrayNum(rec.energy_kwh, 1, ' kWh')}, {formatArrayNum(rec.hours, 1, ' hrs')}, {rec.cost_shares?.[1] !== undefined ? `${rec.cost_shares[1] * 100}% cost` : t('notAvailableLabel')}
                 </strong>
               </div>
             </div>
@@ -1571,7 +1579,7 @@ function Results({
         )}
       </section>
 
-      {/* SECTION 3 — Two-Store Input Data */}
+      {/* SECTION 3 — Two-Store Input Data (Strictly User Scenario Inputs) */}
       <section className="card">
         <h2>{t('storeInputDataTitle')}</h2>
         <p className="muted-desc" style={{ marginBottom: '0.75rem' }}>{t('storeInputDataDesc')}</p>
@@ -1637,31 +1645,34 @@ function Results({
                 <td>Target cost division ratio</td>
               </tr>
               <tr>
-                <th scope="row">Shared Capacity / Baseline</th>
-                <td>{formatNumVal(scenario?.resource?.capacity_kwh, ' kWh capacity')}</td>
-                <td>Disagreement baseline [0,0]</td>
-                <td>kWh / baseline</td>
-                <td>Physical feasibility constraint and reference utility</td>
+                <th scope="row">Shared Resource Capacity</th>
+                <td colSpan={2}>{formatNumVal(scenario?.resource?.capacity_kwh, ' kWh')}</td>
+                <td>kWh</td>
+                <td>Shared electrical resource capacity limit</td>
               </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      {/* SECTION 4 — Results from Pages 2–5 (4 Summary Panels) */}
+      {/* SECTION 4 — Results from Pages 2–5 (4 Honest Summary Panels) */}
       <section className="card">
         <h2>{t('pageSummariesTitle')}</h2>
         <div className="summary-panels-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginTop: '0.75rem' }}>
           {/* Panel A: Page 2 — Strategic Analysis */}
           <div className="card summary-panel">
             <h3>{t('page2PanelTitle')}</h3>
-            <ul className="panel-info-list" style={{ fontSize: '0.88rem', paddingLeft: '1.2rem' }}>
-              <li><strong>{t('questionAnsweredLabel')}:</strong> How do the two shops interact when choosing to share power fairly or claim more?</li>
-              <li><strong>{t('backendResultLabel')}:</strong> Stable Nash equilibrium MM ({cellMM?.utilities ? `[${cellMM.utilities.join(', ')}]` : '1.0, 1.0'}) vs Pareto optimal CC ({cellCC?.utilities ? `[${cellCC.utilities.join(', ')}]` : '8.0, 6.0'}).</li>
-              <li><strong>{t('beginnerInterpretationLabel')}:</strong> Both shops face individual incentives to claim more (MM), but mutual cooperation (CC) yields higher collective benefit.</li>
-              <li><strong>{t('relevantTheoryLabel')}:</strong> Non-Zero-Sum Game, Dominant Strategy, Nash Equilibrium, Pareto Efficiency.</li>
-              <li><strong>{t('importantLimitationLabel')}:</strong> One-shot matrix model without binding contract enforcement.</li>
-            </ul>
+            {data.payoff_matrix ? (
+              <ul className="panel-info-list" style={{ fontSize: '0.88rem', paddingLeft: '1.2rem' }}>
+                <li><strong>{t('questionAnsweredLabel')}:</strong> How do the two shops interact when choosing to share power fairly or claim more?</li>
+                <li><strong>{t('backendResultLabel')}:</strong> Nash equilibria: {nashEquilibriaIds || t('notAvailableLabel')}; Pareto outcomes: {paretoOptimalIds || t('notAvailableLabel')}.</li>
+                <li><strong>{t('beginnerInterpretationLabel')}:</strong> Analyzes individual non-cooperative stability vs collective efficiency.</li>
+                <li><strong>{t('relevantTheoryLabel')}:</strong> Non-Zero-Sum Game, Dominant Strategy, Nash Equilibrium, Pareto Efficiency.</li>
+                <li><strong>{t('importantLimitationLabel')}:</strong> One-shot matrix model without binding contract enforcement.</li>
+              </ul>
+            ) : (
+              <p className="muted" style={{ padding: '0.5rem 0' }}>{t('noStrategicResultMsg')}</p>
+            )}
             <button type="button" className="cta-button secondary-cta" style={{ marginTop: '0.75rem' }} onClick={() => onSelectTab?.('analysis')}>
               {t('reviewAnalysisBtn')}
             </button>
@@ -1670,13 +1681,21 @@ function Results({
           {/* Panel B: Page 3 — Uncertainty Analysis */}
           <div className="card summary-panel">
             <h3>{t('page3PanelTitle')}</h3>
-            <ul className="panel-info-list" style={{ fontSize: '0.88rem', paddingLeft: '1.2rem' }}>
-              <li><strong>{t('questionAnsweredLabel')}:</strong> Which power strategy performs best across unknown outage durations?</li>
-              <li><strong>{t('backendResultLabel')}:</strong> Evaluates {uncertRes?.methods?.length || 6} decision criteria (Maximax, Maximin, Hurwicz, Minimax Regret, Laplace, Expected Value).</li>
-              <li><strong>{t('beginnerInterpretationLabel')}:</strong> Minimax Regret minimizes maximum potential disappointment across short, medium, and long outages.</li>
-              <li><strong>{t('relevantTheoryLabel')}:</strong> Decision Making Under Uncertainty / Games Against Nature.</li>
-              <li><strong>{t('importantLimitationLabel')}:</strong> Relies on estimated outage duration probabilities and optimism weights.</li>
-            </ul>
+            {uncertRes ? (
+              uncertRes.methods && uncertRes.methods.length > 0 ? (
+                <ul className="panel-info-list" style={{ fontSize: '0.88rem', paddingLeft: '1.2rem' }}>
+                  <li><strong>{t('questionAnsweredLabel')}:</strong> Which power strategy performs best across unknown outage durations?</li>
+                  <li><strong>{t('backendResultLabel')}:</strong> Evaluates {uncertRes.methods.length} decision criteria (e.g. Minimax Regret, Maximax, Hurwicz).</li>
+                  <li><strong>{t('beginnerInterpretationLabel')}:</strong> Minimizes maximum potential disappointment across short, medium, and long outages.</li>
+                  <li><strong>{t('relevantTheoryLabel')}:</strong> Decision Making Under Uncertainty / Games Against Nature.</li>
+                  <li><strong>{t('importantLimitationLabel')}:</strong> Relies on estimated outage duration probabilities and optimism weights.</li>
+                </ul>
+              ) : (
+                <p className="muted" style={{ padding: '0.5rem 0' }}>{t('noUncertaintyMethodsMsg')}</p>
+              )
+            ) : (
+              <p className="muted" style={{ padding: '0.5rem 0' }}>{t('noUncertaintyResultMsg')}</p>
+            )}
             <button type="button" className="cta-button secondary-cta" style={{ marginTop: '0.75rem' }} onClick={() => onSelectTab?.('uncertainty')}>
               {t('reviewUncertaintyBtn')}
             </button>
@@ -1685,13 +1704,21 @@ function Results({
           {/* Panel C: Page 4 — Fair Arbitration */}
           <div className="card summary-panel">
             <h3>{t('page4PanelTitle')}</h3>
-            <ul className="panel-info-list" style={{ fontSize: '0.88rem', paddingLeft: '1.2rem' }}>
-              <li><strong>{t('questionAnsweredLabel')}:</strong> How can both shops negotiate a balanced cooperative allocation above baseline [0,0]?</li>
-              <li><strong>{t('backendResultLabel')}:</strong> Nash Arbitration solution ({arbRes?.selected?.allocation?.energy_kwh ? `[${arbRes.selected.allocation.energy_kwh.join(', ')}] kWh` : 'Verified V1.1 allocation'}).</li>
-              <li><strong>{t('beginnerInterpretationLabel')}:</strong> Maximizes balanced joint utility gains above zero-power disagreement reference [0,0].</li>
-              <li><strong>{t('relevantTheoryLabel')}:</strong> Nash Bargaining Solution & Disagreement Reference Point.</li>
-              <li><strong>{t('importantLimitationLabel')}:</strong> Cooperative decision support recommendation; requires mutual consent.</li>
-            </ul>
+            {arbRes ? (
+              arbRes.selected ? (
+                <ul className="panel-info-list" style={{ fontSize: '0.88rem', paddingLeft: '1.2rem' }}>
+                  <li><strong>{t('questionAnsweredLabel')}:</strong> How can both shops negotiate a balanced cooperative allocation above baseline [0,0]?</li>
+                  <li><strong>{t('backendResultLabel')}:</strong> Nash Bargaining Solution candidate {arbRes.selected.candidate_id || t('notAvailableLabel')}.</li>
+                  <li><strong>{t('beginnerInterpretationLabel')}:</strong> Maximizes balanced joint utility gains above zero-power disagreement reference [0,0].</li>
+                  <li><strong>{t('relevantTheoryLabel')}:</strong> Nash Bargaining Solution & Disagreement Reference Point.</li>
+                  <li><strong>{t('importantLimitationLabel')}:</strong> Cooperative decision support recommendation; requires mutual consent.</li>
+                </ul>
+              ) : (
+                <p className="muted" style={{ padding: '0.5rem 0' }}>{t('noSelectedArbitrationMsg')}</p>
+              )
+            ) : (
+              <p className="muted" style={{ padding: '0.5rem 0' }}>{t('noArbitrationResultMsg')}</p>
+            )}
             <button type="button" className="cta-button secondary-cta" style={{ marginTop: '0.75rem' }} onClick={() => onSelectTab?.('arbitration')}>
               {t('reviewArbitrationBtn')}
             </button>
@@ -1700,13 +1727,29 @@ function Results({
           {/* Panel D: Page 5 — Repeated Game Simulation */}
           <div className="card summary-panel">
             <h3>{t('page5PanelTitle')}</h3>
-            <ul className="panel-info-list" style={{ fontSize: '0.88rem', paddingLeft: '1.2rem' }}>
-              <li><strong>{t('questionAnsweredLabel')}:</strong> How does player behavior evolve over multiple rounds when strategies react to actions?</li>
-              <li><strong>{t('backendResultLabel')}:</strong> 30-round simulation fixture ({simRes?.total_payoffs ? `Totals: [${simRes.total_payoffs.join(', ')}]` : 'educational-pd-001'}).</li>
-              <li><strong>{t('beginnerInterpretationLabel')}:</strong> Demonstrates how reactive strategies adapt after non-cooperation over repeated interactions.</li>
-              <li><strong>{t('relevantTheoryLabel')}:</strong> Repeated Game & Reactive Strategies.</li>
-              <li><strong>{t('importantLimitationLabel')}:</strong> {t('page5EducationalDisclosure')}</li>
-            </ul>
+            {simRes ? (
+              <ul className="panel-info-list" style={{ fontSize: '0.88rem', paddingLeft: '1.2rem' }}>
+                <li><strong>{t('questionAnsweredLabel')}:</strong> How does player behavior evolve over multiple rounds when strategies react to actions?</li>
+                <li>
+                  <strong>{t('backendResultLabel')}:</strong> Fixture {simRes.fixture_id || t('notAvailableLabel')} ({simRes.rounds !== undefined ? `${simRes.rounds} rounds` : t('notAvailableLabel')}).{' '}
+                  <span className="badge info-badge">
+                    {simRes.educational_fixture === true
+                      ? t('educationalFixtureTag')
+                      : simRes.educational_fixture === false
+                      ? t('liveSimulationTag')
+                      : t('unknownFixtureStatus')}
+                  </span>
+                </li>
+                <li><strong>{t('beginnerInterpretationLabel')}:</strong> Demonstrates how reactive strategies adapt after non-cooperation over repeated interactions.</li>
+                <li><strong>{t('relevantTheoryLabel')}:</strong> Repeated Game & Reactive Strategies.</li>
+                <li>
+                  <strong>{t('importantLimitationLabel')}:</strong>{' '}
+                  {simRes.educational_fixture === true ? t('page5EducationalDisclosure') : 'Dynamic game simulation result.'}
+                </li>
+              </ul>
+            ) : (
+              <p className="muted" style={{ padding: '0.5rem 0' }}>{t('noRepeatedGameResultMsg')}</p>
+            )}
             <button type="button" className="cta-button secondary-cta" style={{ marginTop: '0.75rem' }} onClick={() => onSelectTab?.('simulation')}>
               {t('reviewRepeatedGameBtn')}
             </button>
@@ -1734,17 +1777,17 @@ function Results({
               <tr>
                 <th scope="row">Nash Equilibrium (Page 2)</th>
                 <td>Unilateral action stability</td>
-                <td>1.0 model score (MM)</td>
-                <td>1.0 model score (MM)</td>
+                <td>{nashEquilibriaIds || t('notAvailableLabel')}</td>
+                <td>{nashEquilibriaIds || t('notAvailableLabel')}</td>
                 <td>Individual Stability</td>
                 <td>Neither shop has incentive to change action alone</td>
-                <td>Lower collective benefit than mutual cooperation (CC)</td>
+                <td>Lower collective benefit than mutual cooperation</td>
               </tr>
               <tr>
                 <th scope="row">Pareto Optimum (Page 2)</th>
                 <td>Maximum joint welfare</td>
-                <td>8.0 model score (CC)</td>
-                <td>6.0 model score (CC)</td>
+                <td>{paretoOptimalIds || t('notAvailableLabel')}</td>
+                <td>{paretoOptimalIds || t('notAvailableLabel')}</td>
                 <td>Collective Efficiency</td>
                 <td>Highest total score; neither can gain without hurting other</td>
                 <td>Vulnerable to individual deviation without agreement</td>
@@ -1752,17 +1795,17 @@ function Results({
               <tr>
                 <th scope="row">Minimax Regret (Page 3)</th>
                 <td>Minimized worst regret</td>
-                <td>Hybrid strategy recommendation</td>
-                <td>Hybrid strategy recommendation</td>
+                <td>{uncertRes?.methods?.find((m) => m.id === 'MINIMAX_REGRET')?.recommended?.join(', ') || t('notAvailableLabel')}</td>
+                <td>{uncertRes?.methods?.find((m) => m.id === 'MINIMAX_REGRET')?.recommended?.join(', ') || t('notAvailableLabel')}</td>
                 <td>Uncertainty Robustness</td>
                 <td>Minimizes maximum potential disappointment across outage states</td>
                 <td>Ignores state probability weights</td>
               </tr>
               <tr>
-                <th scope="row">Nash Arbitration (Page 4)</th>
+                <th scope="row">Nash Bargaining Solution (Page 4)</th>
                 <td>Fair negotiated allocation</td>
-                <td>{arbRes?.selected?.allocation ? `${arbRes.selected.allocation.energy_kwh[0]} kWh, ${arbRes.selected.allocation.hours[0]} hrs` : '5.5 kWh, 2 hrs'}</td>
-                <td>{arbRes?.selected?.allocation ? `${arbRes.selected.allocation.energy_kwh[1]} kWh, ${arbRes.selected.allocation.hours[1]} hrs` : '4.5 kWh, 3 hrs'}</td>
+                <td>{arbRes?.selected?.allocation ? `${formatArrayNum(arbRes.selected.allocation.energy_kwh, 0, ' kWh')}, ${formatArrayNum(arbRes.selected.allocation.hours, 0, ' hrs')}` : t('notAvailableLabel')}</td>
+                <td>{arbRes?.selected?.allocation ? `${formatArrayNum(arbRes.selected.allocation.energy_kwh, 1, ' kWh')}, ${formatArrayNum(arbRes.selected.allocation.hours, 1, ' hrs')}` : t('notAvailableLabel')}</td>
                 <td>Negotiated Fairness</td>
                 <td>Maximizes balanced joint gain above baseline [0,0]</td>
                 <td>Requires mutual consent & hardware safety check</td>
@@ -1770,10 +1813,10 @@ function Results({
               <tr>
                 <th scope="row">Repeated Simulation (Page 5)</th>
                 <td>Long-term interaction</td>
-                <td>{simRes?.total_payoffs ? `${simRes.total_payoffs[0]} total score` : '29 total score'}</td>
-                <td>{simRes?.total_payoffs ? `${simRes.total_payoffs[1]} total score` : '34 total score'}</td>
+                <td>{formatArrayNum(simRes?.total_payoffs, 0, ' total score')}</td>
+                <td>{formatArrayNum(simRes?.total_payoffs, 1, ' total score')}</td>
                 <td>Educational Repeated Behavior</td>
-                <td>Illustrates strategy evolution over 30 rounds</td>
+                <td>Illustrates strategy evolution over repeated rounds</td>
                 <td>Educational fixture score; not energy or money</td>
               </tr>
             </tbody>
@@ -1814,23 +1857,23 @@ function Results({
           <div className="card theory-card">
             <h3>4. Nash Equilibrium</h3>
             <p style={{ fontSize: '0.88rem', lineHeight: '1.5' }}><strong>Definition:</strong> A stable outcome where neither player can gain by unilaterally changing action.</p>
-            <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 2 one-shot equilibrium analysis (MM).</p>
+            <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 2 one-shot equilibrium analysis.</p>
             <p style={{ fontSize: '0.88rem' }}><strong>{t('storeRelationLabel')}:</strong> Describes self-interested baseline stability.</p>
           </div>
           <div className="card theory-card">
             <h3>5. Pareto Efficiency & Social Welfare</h3>
             <p style={{ fontSize: '0.88rem', lineHeight: '1.5' }}><strong>Definition:</strong> Outcomes where no shop can be made better off without making the other worse off.</p>
-            <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 2 Pareto frontier (CC, CM, MC).</p>
+            <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 2 Pareto frontier.</p>
             <p style={{ fontSize: '0.88rem' }}><strong>{t('storeRelationLabel')}:</strong> Identifies collective optimal sharing arrangements.</p>
           </div>
           <div className="card theory-card">
             <h3>6. Games Against Nature (Uncertainty)</h3>
             <p style={{ fontSize: '0.88rem', lineHeight: '1.5' }}><strong>Definition:</strong> Decision criteria evaluating choices against unknown environmental states.</p>
-            <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 3 six decision criteria across outage states.</p>
+            <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 3 decision criteria across outage states.</p>
             <p style={{ fontSize: '0.88rem' }}><strong>{t('storeRelationLabel')}:</strong> Selects robust power strategy for uncertain outage durations.</p>
           </div>
           <div className="card theory-card">
-            <h3>7. Nash Bargaining & Baseline [0,0]</h3>
+            <h3>7. Nash Bargaining Solution</h3>
             <p style={{ fontSize: '0.88rem', lineHeight: '1.5' }}><strong>Definition:</strong> Maximizes joint utility product above a reference disagreement point [0,0].</p>
             <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 4 fair arbitration solution.</p>
             <p style={{ fontSize: '0.88rem' }}><strong>{t('storeRelationLabel')}:</strong> Generates fair negotiated allocation for energy, hours, and costs.</p>
@@ -1838,7 +1881,7 @@ function Results({
           <div className="card theory-card">
             <h3>8. Repeated Game & Reactive Strategies</h3>
             <p style={{ fontSize: '0.88rem', lineHeight: '1.5' }}><strong>Definition:</strong> Sequential rounds where strategies adapt based on previous opponent choices.</p>
-            <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 5 30-round simulation fixture.</p>
+            <p style={{ fontSize: '0.88rem' }}><strong>{t('systemUsageLabel')}:</strong> Page 5 repeated simulation fixture.</p>
             <p style={{ fontSize: '0.88rem' }}><strong>{t('storeRelationLabel')}:</strong> Demonstrates trust building and retaliatory dynamics over time.</p>
           </div>
         </div>
@@ -1864,9 +1907,10 @@ function Results({
           <li><strong>Two Players Only:</strong> Designed strictly for two participating businesses (Straffin Chapters 1–16).</li>
           <li><strong>Input Dependence:</strong> Results depend directly on user-supplied essential needs, demands, and priorities.</li>
           <li><strong>Prototype Utility Weights:</strong> Utility function uses prototype weights for urgency, loss, and cost preference.</li>
+          <li><strong>{t('disagreementBaselineAssumption')}:</strong> {t('modelAssumptionDesc')}</li>
           <li><strong>No Automatic Hardware Control:</strong> Decision support tool only; does not switch physical circuit breakers or IoT meters.</li>
           <li><strong>No Electrical Safety Verification:</strong> Does not certify electrical wiring safety or hardware load limits.</li>
-          <li><strong>Educational Simulation Fixture:</strong> Repeated game uses a fixed teaching fixture (educational-pd-001).</li>
+          <li><strong>Educational Simulation Fixture:</strong> Repeated game fixture illustrates interactive dynamics for teaching purposes.</li>
         </ul>
       </section>
 
