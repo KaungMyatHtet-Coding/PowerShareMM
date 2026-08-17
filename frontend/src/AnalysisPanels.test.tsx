@@ -956,4 +956,136 @@ describe('AnalysisPanels — Guided UX', () => {
 
     u4();
   });
+  /* 33. Results / Theory Redesign Guided Report */
+  it('renders all 12 sections of the redesigned Results / Theory report in English and Myanmar with edge case safety', () => {
+    const onSelectTabSpy = vi.fn();
+
+    // 1. English Render
+    const recData: FullAnalysisData = {
+      ...demoSimData,
+      final_recommendation: {
+        outcome_id: 'OUTCOME_001',
+        energy_kwh: [5.5, 4.5],
+        hours: [2, 3],
+        cost_shares: [0.6, 0.4],
+        matrix_basis_status: 'VERIFIED_FIXTURE',
+        arbitration_status: 'VERIFIED_FIXTURE',
+        explanation: 'Cooperative sharing agreement based on Nash arbitration.',
+      },
+    };
+
+    const { container, unmount } = renderPanels(
+      <AnalysisPanels data={recData} tab="results" scenario={demoScenario} onSelectTab={onSelectTabSpy} />
+    );
+
+    // Section 1: Title & Purpose
+    expect(screen.getByText('Which electricity-sharing arrangement should the two businesses consider?')).toBeInTheDocument();
+    expect(screen.getByText(/This page brings together the scenario, strategic analysis/)).toBeInTheDocument();
+    expect(screen.getByText(/This is a decision-support recommendation, not automatic electrical control/)).toBeInTheDocument();
+
+    // Section 2: Final Decision Summary
+    expect(screen.getByText('Final Decision Summary & Recommendation')).toBeInTheDocument();
+    expect(screen.getByText('Source: Nash Arbitration')).toBeInTheDocument();
+
+    // Section 3: Two-Store Input Data Provenance
+    expect(screen.getByText('Supplied Input Data for the Two Stores')).toBeInTheDocument();
+    expect(screen.getByText('Requested Energy')).toBeInTheDocument();
+    expect(screen.getByText('Minimum Essential Need')).toBeInTheDocument();
+    expect(screen.getByText('Desired Operating Hours')).toBeInTheDocument();
+
+    // Section 4: Results from Pages 2–5
+    expect(screen.getByText('Key Results Across All Four Analytical Pages')).toBeInTheDocument();
+    expect(screen.getByText('Page 2 — Strategic Analysis (Dominance & Nash Equilibrium)')).toBeInTheDocument();
+    expect(screen.getByText('Page 3 — Uncertainty Analysis (Games Against Nature)')).toBeInTheDocument();
+    expect(screen.getByText('Page 4 — Fair Arbitration (Nash Bargaining Solution)')).toBeInTheDocument();
+    expect(screen.getByText('Page 5 — Repeated Game Simulation (Interactive Behavior)')).toBeInTheDocument();
+    expect(screen.getByText(/This educational repeated-game result illustrates behavior over several rounds/)).toBeInTheDocument();
+
+    // Section 5: Decision Comparison Table
+    expect(screen.getByText('Side-by-Side Comparison of Decision Criteria')).toBeInTheDocument();
+
+    // Section 6: Trade-off explanation
+    expect(screen.getByText(/The Nash equilibrium describes individual stability, while the arbitration result describes a cooperative compromise/)).toBeInTheDocument();
+
+    // Section 7: Theory Used
+    expect(screen.getByText('Game Theory Concepts Genuinely Implemented')).toBeInTheDocument();
+    expect(screen.getByText('1. Payoff Matrix & Non-Zero-Sum Game')).toBeInTheDocument();
+
+    // Section 8: System Process Flow
+    expect(screen.getByText('How the System Produces the Decision Report')).toBeInTheDocument();
+    expect(screen.getByText(/1\. Read scenario data/)).toBeInTheDocument();
+
+    // Section 9: Assumptions & Limitations
+    expect(screen.getByText('Assumptions and Model Limitations')).toBeInTheDocument();
+    expect(screen.getByText(/Designed strictly for two participating businesses/)).toBeInTheDocument();
+
+    // Section 10: Future Development
+    expect(screen.getByText('Future Development (Not Currently Implemented)')).toBeInTheDocument();
+    expect(screen.getAllByText('Not currently implemented').length).toBeGreaterThan(0);
+
+    // Section 11: Academic Details (collapsed details element)
+    expect(screen.getByText('Academic details, formulas and raw data')).toBeInTheDocument();
+
+    // Section 12: Next Actions CTA Buttons
+    const editScenarioBtn = screen.getByRole('button', { name: 'Edit Scenario' });
+    fireEvent.click(editScenarioBtn);
+    expect(onSelectTabSpy).toHaveBeenCalledWith('scenario');
+
+    const reviewAnalysisBtn = screen.getAllByRole('button', { name: 'Review Analysis' })[0];
+    fireEvent.click(reviewAnalysisBtn);
+    expect(onSelectTabSpy).toHaveBeenCalledWith('analysis');
+
+    // No undefined, NaN, or Infinity string in DOM
+    expect(container.innerHTML).not.toContain('undefined');
+    expect(container.innerHTML).not.toContain('NaN');
+    expect(container.innerHTML).not.toContain('Infinity');
+
+    unmount();
+
+    // 2. Myanmar Mode Test
+    window.localStorage.setItem('powershare-language', 'my');
+    document.documentElement.lang = 'my';
+    const { unmount: u2 } = renderPanels(<AnalysisPanels data={demoSimData} tab="results" scenario={demoScenario} />);
+    expect(screen.getByText('လုပ်ငန်းနှစ်ခုအနေဖြင့် မည်သည့်လျှပ်စစ်မျှဝေမှုအစီအစဉ်ကို စဉ်းစားသင့်သနည်း')).toBeInTheDocument();
+    expect(screen.getByText('နောက်ဆုံး ဆုံးဖြတ်ချက် အကျဉ်းချုပ်နှင့် အကြံပြုချက်')).toBeInTheDocument();
+    u2();
+    window.localStorage.removeItem('powershare-language');
+    document.documentElement.lang = 'en';
+
+    // 3. Edge Cases: Missing recommendation, null outcome_id, reversed scenario.players, blank names
+    const edgeData: FullAnalysisData = {
+      ...demoSimData,
+      final_recommendation: {
+        outcome_id: null,
+        energy_kwh: [],
+        hours: [],
+        cost_shares: [],
+        matrix_basis_status: 'NONE',
+        arbitration_status: 'NONE',
+        explanation: 'No single recommendation available.',
+      },
+    };
+
+    const reversedScenario: Scenario = {
+      ...demoScenario,
+      players: [
+        { id: 'P2', name: '  ', business_type: 'service', demand_kwh: 8, essential_kwh: 4, desired_hours: 4, outage_loss_mmk: 10000, urgency: 3, risk_preference: 0.5, preferred_cost_share: 0.5 },
+        { id: 'P1', name: '', business_type: 'retail', demand_kwh: 10, essential_kwh: 5, desired_hours: 5, outage_loss_mmk: 12000, urgency: 4, risk_preference: 0.5, preferred_cost_share: 0.5 },
+      ],
+    };
+
+    const { container: edgeContainer, unmount: u3 } = renderPanels(
+      <AnalysisPanels data={edgeData} tab="results" scenario={reversedScenario} />
+    );
+
+    // Displays no single recommendation warning
+    expect(screen.getByText('Multiple Decision Perspectives')).toBeInTheDocument();
+
+    // Blank player names fall back safely
+    expect(edgeContainer.innerHTML).not.toContain('undefined');
+    expect(edgeContainer.innerHTML).not.toContain('NaN');
+    expect(edgeContainer.innerHTML).not.toContain('Infinity');
+
+    u3();
+  });
 });
