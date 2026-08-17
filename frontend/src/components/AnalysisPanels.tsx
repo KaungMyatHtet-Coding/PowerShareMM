@@ -1,3 +1,21 @@
+interface HistoryRecord {
+  round?: number;
+  round_number?: number;
+  actions?: string[];
+  player_1_action?: string;
+  player_2_action?: string;
+  p1_action?: string;
+  p2_action?: string;
+  payoffs?: number[];
+  player_1_payoff?: number;
+  player_2_payoff?: number;
+  p1_payoff?: number;
+  p2_payoff?: number;
+  cumulative_payoffs?: number[];
+  p1_cumulative?: number;
+  p2_cumulative?: number;
+}
+import { useState } from 'react';
 import { useI18n } from '../i18n/I18nContext';
 import type { FullAnalysisData, PayoffCell, Scenario, WorkspaceTab } from '../types';
 const utility = (value: number) => Number(value).toFixed(2);
@@ -15,7 +33,7 @@ export function AnalysisPanels({
   if (tab === 'analysis') return <Analysis data={data} onSelectTab={onSelectTab} scenario={scenario} />;
   if (tab === 'uncertainty') return <Uncertainty data={data} onSelectTab={onSelectTab} scenario={scenario} />;
   if (tab === 'arbitration') return <Arbitration data={data} scenario={scenario} onSelectTab={onSelectTab} />;
-  if (tab === 'simulation') return <Simulation data={data} />;
+  if (tab === 'simulation') return <Simulation data={data} scenario={scenario} onSelectTab={onSelectTab} />;
   return <Results data={data} />;
 }
 function Analysis({
@@ -1099,5 +1117,350 @@ function Arbitration({
     </div>
   );
 }
-function Simulation({ data }: { data: FullAnalysisData }) { const { t } = useI18n(); return <div className="stack"><h2>{t('repeatedGameTitle')}</h2>{data.repeated_game_result ? <pre className="data-table">{JSON.stringify(data.repeated_game_result, null, 2)}</pre> : <div className="card"><p>{t('noRepeatedGame')}</p><p>{t('supportedStrategies')}: ALWAYS_COOPERATE, ALWAYS_CLAIM_MORE, TIT_FOR_TAT, FORGIVING_TIT_FOR_TAT, RANDOM.</p></div>}</div>; }
+function Simulation({
+  data,
+  scenario,
+  onSelectTab,
+}: {
+  data: FullAnalysisData;
+  scenario?: Scenario;
+  onSelectTab?: (tab: WorkspaceTab) => void;
+}) {
+  const { t } = useI18n();
+  const [showAllRounds, setShowAllRounds] = useState(false);
+
+  const result = data.repeated_game_result;
+
+  const rowPlayerId = data.payoff_matrix?.row_player || 'P1';
+  const colPlayerId = data.payoff_matrix?.column_player || 'P2';
+
+  const rowPlayer = scenario?.players?.find((p) => p.id === rowPlayerId);
+  const colPlayer = scenario?.players?.find((p) => p.id === colPlayerId);
+
+  const rowPlayerName = rowPlayer?.name?.trim() || `P1 — Row player`;
+  const colPlayerName = colPlayer?.name?.trim() || `P2 — Column player`;
+
+  if (!result) {
+    return (
+      <div className="stack guided-repeated-game">
+        <section className="card error">
+          <h2>{t('repeatedGameTitle')}</h2>
+          <p className="muted">{t('noRepeatedGameMessage')}</p>
+          <div style={{ marginTop: '1rem', display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+            <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('scenario')}>
+              {t('reviewScenarioBtn')}
+            </button>
+            <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('analysis')}>
+              {t('reviewAnalysisBtn')}
+            </button>
+          </div>
+        </section>
+      </div>
+    );
+  }
+
+  const fixtureId = result.fixture_id || 'educational-pd-001';
+  const isEducational = result.educational_fixture ?? (fixtureId === 'educational-pd-001');
+  const roundsCount = result.rounds ?? (result.history?.length || 30);
+  const seed = result.seed;
+
+  const strat0 = result.player_strategies?.[0] || 'TIT_FOR_TAT';
+  const strat1 = result.player_strategies?.[1] || 'ALWAYS_CLAIM_MORE';
+
+  const history = result.history || [];
+  const totalPayoffs = result.total_payoffs || [];
+  const averagePayoffs = result.average_payoffs || [];
+  const cooperationRates = result.cooperation_rates || [];
+
+  const getStrategyDesc = (stratId: string) => {
+    switch (stratId) {
+      case 'TIT_FOR_TAT':
+        return t('stratTitForTatDesc');
+      case 'ALWAYS_CLAIM_MORE':
+        return t('stratAlwaysClaimMoreDesc');
+      case 'ALWAYS_COOPERATE':
+        return t('stratAlwaysCooperateDesc');
+      case 'FORGIVING_TIT_FOR_TAT':
+        return t('stratForgivingTftDesc');
+      case 'RANDOM':
+        return t('stratRandomDesc');
+      default:
+        return t('stratUnknownDesc');
+    }
+  };
+
+  const formatAction = (actionId?: string) => {
+    if (!actionId) return '—';
+    if (actionId === 'COOPERATE') return `${t('actionCooperateLabel')} (COOPERATE)`;
+    if (actionId === 'CLAIM_MORE') return `${t('actionClaimMoreLabel')} (CLAIM_MORE)`;
+    return actionId;
+  };
+
+  const visibleHistory = showAllRounds ? history : history.slice(0, 5);
+
+  const round1Item = history[0] as HistoryRecord | undefined;
+  const latestItem = history[history.length - 1] as HistoryRecord | undefined;
+
+  return (
+    <div className="stack guided-repeated-game">
+      {/* SECTION 1 — Page Purpose & 3-Step Guide */}
+      <section className="card intro-card">
+        <h2>{t('repeatedGameTitle')}</h2>
+        <p className="muted" style={{ lineHeight: '1.6' }}>
+          {t('repeatedGameIntroText')}
+        </p>
+
+        {/* Academic Honesty Notice */}
+        <div className={`note-box ${isEducational ? 'info-note' : 'success-note'}`} style={{ marginTop: '0.75rem' }}>
+          <strong>{isEducational ? 'Educational Fixture Notice:' : 'Live Simulation Notice:'}</strong>{' '}
+          {isEducational ? t('educationalFixtureNotice') : t('liveSimulationNotice')}
+        </div>
+
+        <div className="note-box info-note" style={{ marginTop: '0.75rem' }}>
+          <strong>Guide:</strong>
+          <ul style={{ margin: '0.25rem 0 0 1.25rem', padding: 0, fontSize: '0.85rem' }}>
+            <li>{t('repeatedGameStep1')}</li>
+            <li>{t('repeatedGameStep2')}</li>
+            <li>{t('repeatedGameStep3')}</li>
+          </ul>
+        </div>
+      </section>
+
+      {/* SECTION 2 — Real-Life Connection */}
+      <section className="card">
+        <h2>{t('realLifeAnalogyTitle')}</h2>
+        <div className="note-box info-note" style={{ fontSize: '0.9rem', lineHeight: '1.6' }}>
+          {t('realLifeAnalogyText')}
+        </div>
+      </section>
+
+      {/* SECTION 3 — Simulation Overview */}
+      <section className="card">
+        <h2>{t('simulationOverviewTitle')}</h2>
+        <div className="sim-overview-grid">
+          <div className="card overview-item">
+            <span className="muted-desc">Fixture ID</span>
+            <code>{fixtureId}</code>
+            <p className="muted-desc">{t('educationalFixtureExplanation')}</p>
+          </div>
+          <div className="card overview-item">
+            <span className="muted-desc">Rounds</span>
+            <strong>{roundsCount}</strong>
+            <p className="muted-desc">{t('roundsExplanation')}</p>
+          </div>
+          <div className="card overview-item">
+            <span className="muted-desc">Random Seed</span>
+            <strong>{seed !== undefined ? seed : '—'}</strong>
+            <p className="muted-desc">{t('seedExplanation')}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4 — Meet the Two Strategies */}
+      <section className="card">
+        <h2>{t('meetStrategiesTitle')}</h2>
+        <div className="strategy-cards-grid">
+          {/* Card 1: Row Player */}
+          <div className="card strat-card">
+            <div className="strat-header">
+              <h3>{rowPlayerName}</h3>
+              <code className="tech-id">{rowPlayerId} — {strat0}</code>
+            </div>
+            <p style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>{getStrategyDesc(strat0)}</p>
+          </div>
+
+          {/* Card 2: Column Player */}
+          <div className="card strat-card">
+            <div className="strat-header">
+              <h3>{colPlayerName}</h3>
+              <code className="tech-id">{colPlayerId} — {strat1}</code>
+            </div>
+            <p style={{ fontSize: '0.9rem', lineHeight: '1.5' }}>{getStrategyDesc(strat1)}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 5 — Important Terms (Compact Expandable Glossary) */}
+      <section className="card">
+        <details className="raw-details" >
+          <summary className="glossary-summary">
+            <h2 style={{ display: 'inline', fontSize: '1.2rem' }}>{t('importantTermsTitle')}</h2>
+          </summary>
+          <ul className="terms-list" style={{ marginTop: '0.75rem', paddingLeft: '1.25rem', fontSize: '0.88rem' }}>
+            <li><strong>Strategy:</strong> {t('termStrategyDef')}</li>
+            <li><strong>Action:</strong> {t('termActionDef')}</li>
+            <li><strong>COOPERATE:</strong> {t('termCooperateDef')}</li>
+            <li><strong>CLAIM_MORE:</strong> {t('termClaimMoreDef')}</li>
+            <li><strong>Payoff Score:</strong> {t('termPayoffDef')}</li>
+            <li><strong>Cumulative Payoff:</strong> {t('termCumulativePayoffDef')}</li>
+            <li><strong>Total Payoff:</strong> {t('termTotalPayoffDef')}</li>
+            <li><strong>Average Payoff:</strong> {t('termAveragePayoffDef')}</li>
+            <li><strong>Cooperation Rate:</strong> {t('termCooperationRateDef')}</li>
+          </ul>
+        </details>
+      </section>
+
+      {/* SECTION 6 — What Happened? (Accessible Round History Table) */}
+      <section className="card">
+        <h2>{t('roundHistoryTitle')}</h2>
+        <div className="table-responsive">
+          <table className="data-table round-table">
+            <thead>
+              <tr>
+                <th scope="col">Round</th>
+                <th scope="col">{rowPlayerName} Action</th>
+                <th scope="col">{colPlayerName} Action</th>
+                <th scope="col">{rowPlayerName} Payoff</th>
+                <th scope="col">{colPlayerName} Payoff</th>
+                <th scope="col">{rowPlayerName} Cumul. Score</th>
+                <th scope="col">{colPlayerName} Cumul. Score</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(visibleHistory as HistoryRecord[]).map((item, idx: number) => {
+                const roundNum = item?.round ?? item?.round_number ?? idx + 1;
+                const p1Act = item?.actions?.[0] ?? item?.player_1_action ?? item?.p1_action;
+                const p2Act = item?.actions?.[1] ?? item?.player_2_action ?? item?.p2_action;
+                const p1Pay = item?.payoffs?.[0] ?? item?.player_1_payoff ?? item?.p1_payoff;
+                const p2Pay = item?.payoffs?.[1] ?? item?.player_2_payoff ?? item?.p2_payoff;
+                const p1Cum = item?.cumulative_payoffs?.[0] ?? item?.p1_cumulative;
+                const p2Cum = item?.cumulative_payoffs?.[1] ?? item?.p2_cumulative;
+
+                return (
+                  <tr key={`${roundNum}-${idx}`}>
+                    <th scope="row">{roundNum}</th>
+                    <td>{formatAction(p1Act)}</td>
+                    <td>{formatAction(p2Act)}</td>
+                    <td>{p1Pay !== undefined ? p1Pay : '—'}</td>
+                    <td>{p2Pay !== undefined ? p2Pay : '—'}</td>
+                    <td>{p1Cum !== undefined ? p1Cum : '—'}</td>
+                    <td>{p2Cum !== undefined ? p2Cum : '—'}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        {history.length > 5 && (
+          <div style={{ marginTop: '0.75rem' }}>
+            <button
+              type="button"
+              className="cta-button secondary-cta"
+              onClick={() => setShowAllRounds(!showAllRounds)}
+            >
+              {showAllRounds
+                ? t('showFewerRoundsBtn')
+                : t('showAllRoundsBtn').replace('{count}', history.length.toString())}
+            </button>
+          </div>
+        )}
+      </section>
+
+      {/* SECTION 7 — Round-by-Round Story */}
+      {history.length > 0 && (
+        <section className="card">
+          <h2>{t('roundStoryTitle')}</h2>
+          <ul style={{ margin: '0.5rem 0 0 1.25rem', padding: 0, fontSize: '0.9rem', lineHeight: '1.6' }}>
+            {round1Item && (
+              <li>
+                {t('storyRound1')
+                  .replace('{p1}', rowPlayerName)
+                  .replace('{p1Act}', formatAction(round1Item?.actions?.[0]))
+                  .replace('{p2}', colPlayerName)
+                  .replace('{p2Act}', formatAction(round1Item?.actions?.[1]))}
+              </li>
+            )}
+            {latestItem && history.length > 1 && (
+              <li>
+                {t('storyLatestRound')
+                  .replace('{round}', (latestItem.round ?? history.length).toString())
+                  .replace('{p1}', rowPlayerName)
+                  .replace('{p1Act}', formatAction(latestItem?.actions?.[0]))
+                  .replace('{p2}', colPlayerName)
+                  .replace('{p2Act}', formatAction(latestItem?.actions?.[1]))}
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
+
+      {/* SECTION 8 — Final Result Summary */}
+      <section className="card">
+        <h2>{t('finalResultSummaryTitle')}</h2>
+        <div className="result-cards-grid">
+          {/* Card 1: Row Player */}
+          <div className="card res-card">
+            <h3>{rowPlayerName} ({rowPlayerId})</h3>
+            <ul className="res-list">
+              <li>
+                <span>{t('totalPayoffLabel')}: <strong>{totalPayoffs[0] !== undefined ? totalPayoffs[0] : t('notAvailableLabel')}</strong></span>
+              </li>
+              <li>
+                <span>{t('avgPayoffLabel')}: <strong>{averagePayoffs[0] !== undefined ? averagePayoffs[0].toFixed(4) : t('notAvailableLabel')}</strong></span>
+              </li>
+              <li>
+                <span>{t('coopRateLabel')}: <strong>{cooperationRates[0] !== undefined ? `${(cooperationRates[0] * 100).toFixed(1)}%` : t('notAvailableLabel')}</strong></span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Card 2: Column Player */}
+          <div className="card res-card">
+            <h3>{colPlayerName} ({colPlayerId})</h3>
+            <ul className="res-list">
+              <li>
+                <span>{t('totalPayoffLabel')}: <strong>{totalPayoffs[1] !== undefined ? totalPayoffs[1] : t('notAvailableLabel')}</strong></span>
+              </li>
+              <li>
+                <span>{t('avgPayoffLabel')}: <strong>{averagePayoffs[1] !== undefined ? averagePayoffs[1].toFixed(4) : t('notAvailableLabel')}</strong></span>
+              </li>
+              <li>
+                <span>{t('coopRateLabel')}: <strong>{cooperationRates[1] !== undefined ? `${(cooperationRates[1] * 100).toFixed(1)}%` : t('notAvailableLabel')}</strong></span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 9 — Beginner-Friendly Lesson */}
+      <section className="card">
+        <h2>{t('beginnerLessonTitle')}</h2>
+        <p className="note-box info-note" style={{ lineHeight: '1.6', fontSize: '0.9rem' }}>
+          {t('beginnerLessonText')}
+        </p>
+      </section>
+
+      {/* SECTION 10 — Academic Details & Raw Data */}
+      <section className="card">
+        <details className="raw-details" >
+          <summary className="glossary-summary">
+            <h3 style={{ display: 'inline' }}>{t('academicDetailsAndRawData')}</h3>
+          </summary>
+          <pre className="data-table" style={{ fontSize: '0.8rem', marginTop: '0.5rem' }}>
+            {JSON.stringify(result, null, 2)}
+          </pre>
+        </details>
+      </section>
+
+      {/* SECTION 11 — Next Actions (Navigation CTAs) */}
+      <section className="card next-step-card">
+        <h2>Next Actions</h2>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+          <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('scenario')}>
+            {t('reviewScenarioBtn')}
+          </button>
+          <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('analysis')}>
+            {t('reviewAnalysisBtn')}
+          </button>
+          <button type="button" className="cta-button secondary-cta" onClick={() => onSelectTab?.('arbitration')}>
+            {t('reviewArbitrationBtn')}
+          </button>
+          <button type="button" className="cta-button primary-cta" onClick={() => onSelectTab?.('results')}>
+            {t('viewResultsTheoryBtn')}
+          </button>
+        </div>
+      </section>
+    </div>
+  );
+}
 function Results({ data }: { data: FullAnalysisData }) { const { t } = useI18n(); return <div className="stack"><h2>{t('recommendationTheory')}</h2><div className="card success"><h3>{t('cooperativeRecommendation')}</h3><p>{data.final_recommendation.explanation}</p><p>{t('outcomeId')}: {data.final_recommendation.outcome_id ?? t('arbitrationNotMm')}</p></div><h3>{t('explanations')}</h3><ul>{data.explanations.map((item) => <li key={item}>{item}</li>)}</ul><h3>{t('assumptionsScope')}</h3><ul><li>{t('exactlyTwoScope')}</li><li>{t('chapter17Excluded')}</li><li>{t('penaltiesScope')}</li><li>{t('decisionSupportScope')}</li><li>{t('stableBetterScope')}</li></ul>{data.warnings?.length ? <><h3>{t('warnings')}</h3><ul>{data.warnings.map((warning) => <li key={warning}>{warning}</li>)}</ul></> : null}</div>; }

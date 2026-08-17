@@ -280,3 +280,15 @@ footer { display:flex; justify-content:space-between; gap:1rem; padding:1.2rem 1
 .guided-arbitration .disagreement-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem; }
 .guided-arbitration .disagreement-item { background: var(--bg-surface-elevated, #1e293b); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; font-size: 0.9rem; }
 .guided-arbitration .success-note { background: rgba(16, 185, 129, 0.1); border-left: 4px solid #10b981; padding: 0.75rem 1rem; border-radius: 4px; font-size: 0.88rem; }
+
+
+/* Guided Repeated Game UX Styling */
+.guided-repeated-game .sim-overview-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.75rem; margin-top: 0.75rem; }
+.guided-repeated-game .overview-item { background: var(--bg-surface-elevated, #1e293b); border: 1px solid var(--border); border-radius: 6px; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.guided-repeated-game .strategy-cards-grid, .guided-repeated-game .result-cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 0.75rem; }
+.guided-repeated-game .strat-card, .guided-repeated-game .res-card { background: var(--bg-surface-elevated, #1e293b); border: 1px solid var(--border); border-radius: 8px; padding: 1.1rem; }
+.guided-repeated-game .strat-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem; }
+.guided-repeated-game .strat-header h3 { margin: 0; font-size: 1.1rem; }
+.guided-repeated-game .res-list { list-style: none; margin: 0.5rem 0 0; padding: 0; display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.92rem; }
+.guided-repeated-game .round-table th, .guided-repeated-game .round-table td { padding: 0.5rem 0.75rem; font-size: 0.85rem; text-align: center; }
+.guided-repeated-game .round-table th[scope="row"] { text-align: left; }

@@ -2,92 +2,381 @@
   "data": {
     "scenario_id": "demo-shared-power-001",
     "analysis_status": "V1_1_VERIFIED_FIXTURE_WITH_CANONICAL_ARBITRATION",
-    "strategies": ["COOPERATE", "CLAIM_MORE"],
+    "strategies": [
+      "COOPERATE",
+      "CLAIM_MORE"
+    ],
     "outcomes": [
       {
         "id": "CC",
-        "strategies": ["COOPERATE", "COOPERATE"],
-        "allocation": { "energy_kwh": [5, 5], "hours": [3, 2] },
-        "cost": { "shares": [0.5, 0.5], "amounts_mmk": [25000, 25000] },
-        "penalties": { "overload": [0, 0], "violation": [0, 0] },
-        "components": {
-          "P1": { "service_score": 83.33333333333334, "essential_score": 100, "time_score": 60, "avoided_loss_score": 50, "urgency_score": 100, "cost_burden_score": 50 },
-          "P2": { "service_score": 71.42857142857143, "essential_score": 100, "time_score": 50, "avoided_loss_score": 23.809523809523807, "urgency_score": 60, "cost_burden_score": 50 }
+        "strategies": [
+          "COOPERATE",
+          "COOPERATE"
+        ],
+        "allocation": {
+          "energy_kwh": [
+            5,
+            5
+          ],
+          "hours": [
+            3,
+            2
+          ]
         },
-        "utilities": [76.5, 61.5],
-        "display_utilities": [76.50, 61.50],
+        "cost": {
+          "shares": [
+            0.5,
+            0.5
+          ],
+          "amounts_mmk": [
+            25000,
+            25000
+          ]
+        },
+        "penalties": {
+          "overload": [
+            0,
+            0
+          ],
+          "violation": [
+            0,
+            0
+          ]
+        },
+        "components": {
+          "P1": {
+            "service_score": 83.33333333333334,
+            "essential_score": 100,
+            "time_score": 60,
+            "avoided_loss_score": 50,
+            "urgency_score": 100,
+            "cost_burden_score": 50
+          },
+          "P2": {
+            "service_score": 71.42857142857143,
+            "essential_score": 100,
+            "time_score": 50,
+            "avoided_loss_score": 23.809523809523807,
+            "urgency_score": 60,
+            "cost_burden_score": 50
+          }
+        },
+        "utilities": [
+          76.5,
+          61.5
+        ],
+        "display_utilities": [
+          76.5,
+          61.5
+        ],
         "feasible": true
       },
       {
         "id": "CM",
-        "strategies": ["COOPERATE", "CLAIM_MORE"],
-        "allocation": { "energy_kwh": [4, 6], "hours": [2, 3] },
-        "cost": { "shares": [0.4, 0.6], "amounts_mmk": [20000, 30000] },
-        "penalties": { "overload": [0, 0], "violation": [0, 0] },
-        "components": {
-          "P1": { "service_score": 66.66666666666666, "essential_score": 100, "time_score": 40, "avoided_loss_score": 26.666666666666664, "urgency_score": 100, "cost_burden_score": 40 },
-          "P2": { "service_score": 85.71428571428571, "essential_score": 100, "time_score": 75, "avoided_loss_score": 42.857142857142854, "urgency_score": 60, "cost_burden_score": 60 }
+        "strategies": [
+          "COOPERATE",
+          "CLAIM_MORE"
+        ],
+        "allocation": {
+          "energy_kwh": [
+            4,
+            6
+          ],
+          "hours": [
+            2,
+            3
+          ]
         },
-        "utilities": [66, 71.39285714285714],
-        "display_utilities": [66.00, 71.39],
+        "cost": {
+          "shares": [
+            0.4,
+            0.6
+          ],
+          "amounts_mmk": [
+            20000,
+            30000
+          ]
+        },
+        "penalties": {
+          "overload": [
+            0,
+            0
+          ],
+          "violation": [
+            0,
+            0
+          ]
+        },
+        "components": {
+          "P1": {
+            "service_score": 66.66666666666666,
+            "essential_score": 100,
+            "time_score": 40,
+            "avoided_loss_score": 26.666666666666664,
+            "urgency_score": 100,
+            "cost_burden_score": 40
+          },
+          "P2": {
+            "service_score": 85.71428571428571,
+            "essential_score": 100,
+            "time_score": 75,
+            "avoided_loss_score": 42.857142857142854,
+            "urgency_score": 60,
+            "cost_burden_score": 60
+          }
+        },
+        "utilities": [
+          66,
+          71.39285714285714
+        ],
+        "display_utilities": [
+          66.0,
+          71.39
+        ],
         "feasible": true
       },
       {
         "id": "MC",
-        "strategies": ["CLAIM_MORE", "COOPERATE"],
-        "allocation": { "energy_kwh": [6, 4], "hours": [3, 2] },
-        "cost": { "shares": [0.6, 0.4], "amounts_mmk": [30000, 20000] },
-        "penalties": { "overload": [0, 0], "violation": [0, 0] },
-        "components": {
-          "P1": { "service_score": 100, "essential_score": 100, "time_score": 60, "avoided_loss_score": 60, "urgency_score": 100, "cost_burden_score": 60 },
-          "P2": { "service_score": 57.14285714285714, "essential_score": 100, "time_score": 50, "avoided_loss_score": 19.047619047619047, "urgency_score": 60, "cost_burden_score": 40 }
+        "strategies": [
+          "CLAIM_MORE",
+          "COOPERATE"
+        ],
+        "allocation": {
+          "energy_kwh": [
+            6,
+            4
+          ],
+          "hours": [
+            3,
+            2
+          ]
         },
-        "utilities": [82, 57.5],
-        "display_utilities": [82.00, 57.50],
+        "cost": {
+          "shares": [
+            0.6,
+            0.4
+          ],
+          "amounts_mmk": [
+            30000,
+            20000
+          ]
+        },
+        "penalties": {
+          "overload": [
+            0,
+            0
+          ],
+          "violation": [
+            0,
+            0
+          ]
+        },
+        "components": {
+          "P1": {
+            "service_score": 100,
+            "essential_score": 100,
+            "time_score": 60,
+            "avoided_loss_score": 60,
+            "urgency_score": 100,
+            "cost_burden_score": 60
+          },
+          "P2": {
+            "service_score": 57.14285714285714,
+            "essential_score": 100,
+            "time_score": 50,
+            "avoided_loss_score": 19.047619047619047,
+            "urgency_score": 60,
+            "cost_burden_score": 40
+          }
+        },
+        "utilities": [
+          82,
+          57.5
+        ],
+        "display_utilities": [
+          82.0,
+          57.5
+        ],
         "feasible": true
       },
       {
         "id": "MM",
-        "strategies": ["CLAIM_MORE", "CLAIM_MORE"],
-        "allocation": { "energy_kwh": [4.615384615384615, 5.384615384615385], "hours": [2.5, 2.5] },
-        "cost": { "shares": [0.4615384615384615, 0.5384615384615384], "amounts_mmk": [23076.923076923078, 26923.076923076922] },
-        "penalties": { "overload": [5, 5], "violation": [0, 0] },
-        "components": {
-          "P1": { "service_score": 76.92307692307692, "essential_score": 100, "time_score": 50, "avoided_loss_score": 38.46153846153846, "urgency_score": 100, "cost_burden_score": 46.15384615384615 },
-          "P2": { "service_score": 76.92307692307693, "essential_score": 100, "time_score": 62.5, "avoided_loss_score": 32.05128205128205, "urgency_score": 60, "cost_burden_score": 53.84615384615384 }
+        "strategies": [
+          "CLAIM_MORE",
+          "CLAIM_MORE"
+        ],
+        "allocation": {
+          "energy_kwh": [
+            4.615384615384615,
+            5.384615384615385
+          ],
+          "hours": [
+            2.5,
+            2.5
+          ]
         },
-        "utilities": [66.73076923076923, 60.875],
-        "display_utilities": [66.73, 60.88],
+        "cost": {
+          "shares": [
+            0.4615384615384615,
+            0.5384615384615384
+          ],
+          "amounts_mmk": [
+            23076.923076923078,
+            26923.076923076922
+          ]
+        },
+        "penalties": {
+          "overload": [
+            5,
+            5
+          ],
+          "violation": [
+            0,
+            0
+          ]
+        },
+        "components": {
+          "P1": {
+            "service_score": 76.92307692307692,
+            "essential_score": 100,
+            "time_score": 50,
+            "avoided_loss_score": 38.46153846153846,
+            "urgency_score": 100,
+            "cost_burden_score": 46.15384615384615
+          },
+          "P2": {
+            "service_score": 76.92307692307693,
+            "essential_score": 100,
+            "time_score": 62.5,
+            "avoided_loss_score": 32.05128205128205,
+            "urgency_score": 60,
+            "cost_burden_score": 53.84615384615384
+          }
+        },
+        "utilities": [
+          66.73076923076923,
+          60.875
+        ],
+        "display_utilities": [
+          66.73,
+          60.88
+        ],
         "feasible": true
       }
     ],
     "payoff_matrix": {
       "row_player": "P1",
       "column_player": "P2",
-      "row_strategies": ["COOPERATE", "CLAIM_MORE"],
-      "column_strategies": ["COOPERATE", "CLAIM_MORE"],
+      "row_strategies": [
+        "COOPERATE",
+        "CLAIM_MORE"
+      ],
+      "column_strategies": [
+        "COOPERATE",
+        "CLAIM_MORE"
+      ],
       "cells": [
-        { "outcome_id": "CC", "row_strategy": "COOPERATE", "column_strategy": "COOPERATE", "utilities": [76.5, 61.5] },
-        { "outcome_id": "CM", "row_strategy": "COOPERATE", "column_strategy": "CLAIM_MORE", "utilities": [66, 71.39285714285714] },
-        { "outcome_id": "MC", "row_strategy": "CLAIM_MORE", "column_strategy": "COOPERATE", "utilities": [82, 57.5] },
-        { "outcome_id": "MM", "row_strategy": "CLAIM_MORE", "column_strategy": "CLAIM_MORE", "utilities": [66.73076923076923, 60.875] }
+        {
+          "outcome_id": "CC",
+          "row_strategy": "COOPERATE",
+          "column_strategy": "COOPERATE",
+          "utilities": [
+            76.5,
+            61.5
+          ]
+        },
+        {
+          "outcome_id": "CM",
+          "row_strategy": "COOPERATE",
+          "column_strategy": "CLAIM_MORE",
+          "utilities": [
+            66,
+            71.39285714285714
+          ]
+        },
+        {
+          "outcome_id": "MC",
+          "row_strategy": "CLAIM_MORE",
+          "column_strategy": "COOPERATE",
+          "utilities": [
+            82,
+            57.5
+          ]
+        },
+        {
+          "outcome_id": "MM",
+          "row_strategy": "CLAIM_MORE",
+          "column_strategy": "CLAIM_MORE",
+          "utilities": [
+            66.73076923076923,
+            60.875
+          ]
+        }
       ]
     },
     "dominated_strategies": [
-      { "player_id": "P1", "strategy": "COOPERATE", "dominated_by": "CLAIM_MORE", "kind": "STRICT" },
-      { "player_id": "P2", "strategy": "COOPERATE", "dominated_by": "CLAIM_MORE", "kind": "STRICT" }
+      {
+        "player_id": "P1",
+        "strategy": "COOPERATE",
+        "dominated_by": "CLAIM_MORE",
+        "kind": "STRICT"
+      },
+      {
+        "player_id": "P2",
+        "strategy": "COOPERATE",
+        "dominated_by": "CLAIM_MORE",
+        "kind": "STRICT"
+      }
     ],
     "best_responses": {
-      "P1": { "against_COOPERATE": ["CLAIM_MORE"], "against_CLAIM_MORE": ["CLAIM_MORE"] },
-      "P2": { "against_COOPERATE": ["CLAIM_MORE"], "against_CLAIM_MORE": ["CLAIM_MORE"] }
+      "P1": {
+        "against_COOPERATE": [
+          "CLAIM_MORE"
+        ],
+        "against_CLAIM_MORE": [
+          "CLAIM_MORE"
+        ]
+      },
+      "P2": {
+        "against_COOPERATE": [
+          "CLAIM_MORE"
+        ],
+        "against_CLAIM_MORE": [
+          "CLAIM_MORE"
+        ]
+      }
     },
     "pure_nash_equilibria": [
-      { "outcome_id": "MM", "utilities": [66.73076923076923, 60.875] }
+      {
+        "outcome_id": "MM",
+        "utilities": [
+          66.73076923076923,
+          60.875
+        ]
+      }
     ],
     "pareto_optimal_outcomes": [
-      { "outcome_id": "CC", "utilities": [76.5, 61.5] },
-      { "outcome_id": "CM", "utilities": [66, 71.39285714285714] },
-      { "outcome_id": "MC", "utilities": [82, 57.5] }
+      {
+        "outcome_id": "CC",
+        "utilities": [
+          76.5,
+          61.5
+        ]
+      },
+      {
+        "outcome_id": "CM",
+        "utilities": [
+          66,
+          71.39285714285714
+        ]
+      },
+      {
+        "outcome_id": "MC",
+        "utilities": [
+          82,
+          57.5
+        ]
+      }
     ],
     "prisoners_dilemma": {
       "detected": true,
@@ -95,8 +384,22 @@
       "fixture_type": "ELECTRICITY_ALLOCATION_GAME",
       "failed_conditions": [],
       "payoff_ordering": {
-        "P1": { "temptation": 82, "reward": 76.5, "punishment": 66.73076923076923, "sucker": 66, "condition": "T > R > P > S", "satisfied": true },
-        "P2": { "temptation": 71.39285714285714, "reward": 61.5, "punishment": 60.875, "sucker": 57.5, "condition": "T > R > P > S", "satisfied": true }
+        "P1": {
+          "temptation": 82,
+          "reward": 76.5,
+          "punishment": 66.73076923076923,
+          "sucker": 66,
+          "condition": "T > R > P > S",
+          "satisfied": true
+        },
+        "P2": {
+          "temptation": 71.39285714285714,
+          "reward": 61.5,
+          "punishment": 60.875,
+          "sucker": 57.5,
+          "condition": "T > R > P > S",
+          "satisfied": true
+        }
       },
       "explanation": "Both players have a unilateral incentive to CLAIM_MORE, MM is the sole Nash equilibrium, and CC Pareto-dominates MM; the main game is an asymmetric Prisoners Dilemma."
     },
@@ -104,29 +407,139 @@
       "fixture_type": "PREDEFINED_EDUCATIONAL_DEMO",
       "probability_total": 1,
       "hurwicz_alpha": 0.6,
-      "state_best_utilities": { "SHORT": 80, "MEDIUM": 85, "LONG": 90 },
+      "state_best_utilities": {
+        "SHORT": 80,
+        "MEDIUM": 85,
+        "LONG": 90
+      },
       "regret_matrix": {
-        "BATTERY_ONLY": { "SHORT": 0, "MEDIUM": 30, "LONG": 70 },
-        "GENERATOR_ONLY": { "SHORT": 35, "MEDIUM": 15, "LONG": 15 },
-        "HYBRID": { "SHORT": 15, "MEDIUM": 0, "LONG": 0 }
+        "BATTERY_ONLY": {
+          "SHORT": 0,
+          "MEDIUM": 30,
+          "LONG": 70
+        },
+        "GENERATOR_ONLY": {
+          "SHORT": 35,
+          "MEDIUM": 15,
+          "LONG": 15
+        },
+        "HYBRID": {
+          "SHORT": 15,
+          "MEDIUM": 0,
+          "LONG": 0
+        }
       },
       "methods": [
-        { "id": "EXPECTED_VALUE", "scores": { "BATTERY_ONLY": 55.5, "GENERATOR_ONLY": 63.5, "HYBRID": 80 }, "recommended": ["HYBRID"], "ties": [], "explanation": "HYBRID has the highest probability-weighted utility." },
-        { "id": "WALD_MAXIMIN", "scores": { "BATTERY_ONLY": 20, "GENERATOR_ONLY": 45, "HYBRID": 65 }, "recommended": ["HYBRID"], "ties": [], "explanation": "HYBRID has the best worst-case utility." },
-        { "id": "MAXIMAX", "scores": { "BATTERY_ONLY": 80, "GENERATOR_ONLY": 75, "HYBRID": 90 }, "recommended": ["HYBRID"], "ties": [], "explanation": "HYBRID has the greatest best-case utility." },
-        { "id": "LAPLACE", "scores": { "BATTERY_ONLY": 51.666666666666664, "GENERATOR_ONLY": 63.333333333333336, "HYBRID": 80 }, "recommended": ["HYBRID"], "ties": [], "explanation": "HYBRID has the highest equally weighted mean." },
-        { "id": "MINIMAX_REGRET", "scores": { "BATTERY_ONLY": 70, "GENERATOR_ONLY": 35, "HYBRID": 15 }, "recommended": ["HYBRID"], "ties": [], "score_direction": "LOWER_IS_BETTER", "explanation": "HYBRID has the smallest maximum regret." },
-        { "id": "HURWICZ", "scores": { "BATTERY_ONLY": 56, "GENERATOR_ONLY": 63, "HYBRID": 80 }, "recommended": ["HYBRID"], "ties": [], "explanation": "At optimism 0.6, HYBRID has the highest weighted best/worst score." }
+        {
+          "id": "EXPECTED_VALUE",
+          "scores": {
+            "BATTERY_ONLY": 55.5,
+            "GENERATOR_ONLY": 63.5,
+            "HYBRID": 80
+          },
+          "recommended": [
+            "HYBRID"
+          ],
+          "ties": [],
+          "explanation": "HYBRID has the highest probability-weighted utility."
+        },
+        {
+          "id": "WALD_MAXIMIN",
+          "scores": {
+            "BATTERY_ONLY": 20,
+            "GENERATOR_ONLY": 45,
+            "HYBRID": 65
+          },
+          "recommended": [
+            "HYBRID"
+          ],
+          "ties": [],
+          "explanation": "HYBRID has the best worst-case utility."
+        },
+        {
+          "id": "MAXIMAX",
+          "scores": {
+            "BATTERY_ONLY": 80,
+            "GENERATOR_ONLY": 75,
+            "HYBRID": 90
+          },
+          "recommended": [
+            "HYBRID"
+          ],
+          "ties": [],
+          "explanation": "HYBRID has the greatest best-case utility."
+        },
+        {
+          "id": "LAPLACE",
+          "scores": {
+            "BATTERY_ONLY": 51.666666666666664,
+            "GENERATOR_ONLY": 63.333333333333336,
+            "HYBRID": 80
+          },
+          "recommended": [
+            "HYBRID"
+          ],
+          "ties": [],
+          "explanation": "HYBRID has the highest equally weighted mean."
+        },
+        {
+          "id": "MINIMAX_REGRET",
+          "scores": {
+            "BATTERY_ONLY": 70,
+            "GENERATOR_ONLY": 35,
+            "HYBRID": 15
+          },
+          "recommended": [
+            "HYBRID"
+          ],
+          "ties": [],
+          "score_direction": "LOWER_IS_BETTER",
+          "explanation": "HYBRID has the smallest maximum regret."
+        },
+        {
+          "id": "HURWICZ",
+          "scores": {
+            "BATTERY_ONLY": 56,
+            "GENERATOR_ONLY": 63,
+            "HYBRID": 80
+          },
+          "recommended": [
+            "HYBRID"
+          ],
+          "ties": [],
+          "explanation": "At optimism 0.6, HYBRID has the highest weighted best/worst score."
+        }
       ]
     },
     "arbitration_result": {
-      "disagreement": [0, 0],
+      "disagreement": [
+        0,
+        0
+      ],
       "selected": {
         "candidate_id": "V1_1_ARBITRATION_E5_5_E4_5_H2_H3_S0_6",
-        "allocation": { "energy_kwh": [5.5, 4.5], "hours": [2, 3] },
-        "cost_shares": [0.6, 0.4],
-        "utilities": [73, 65.35714285714286],
-        "gains": [73, 65.35714285714286],
+        "allocation": {
+          "energy_kwh": [
+            5.5,
+            4.5
+          ],
+          "hours": [
+            2,
+            3
+          ]
+        },
+        "cost_shares": [
+          0.6,
+          0.4
+        ],
+        "utilities": [
+          73,
+          65.35714285714286
+        ],
+        "gains": [
+          73,
+          65.35714285714286
+        ],
         "nash_product": 4771.071428571428
       },
       "ties": [],
@@ -139,7 +552,480 @@
         "It is the unique maximum Nash product among 10,440 feasible canonical candidates."
       ]
     },
-    "repeated_game_result": null,
+    "repeated_game_result": {
+      "fixture_id": "educational-pd-001",
+      "rounds": 30,
+      "seed": 42,
+      "player_strategies": [
+        "TIT_FOR_TAT",
+        "ALWAYS_CLAIM_MORE"
+      ],
+      "history": [
+        {
+          "round": 1,
+          "actions": [
+            "COOPERATE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            0.0,
+            5.0
+          ],
+          "cumulative_payoffs": [
+            0.0,
+            5.0
+          ]
+        },
+        {
+          "round": 2,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            1.0,
+            6.0
+          ]
+        },
+        {
+          "round": 3,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            2.0,
+            7.0
+          ]
+        },
+        {
+          "round": 4,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            3.0,
+            8.0
+          ]
+        },
+        {
+          "round": 5,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            4.0,
+            9.0
+          ]
+        },
+        {
+          "round": 6,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            5.0,
+            10.0
+          ]
+        },
+        {
+          "round": 7,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            6.0,
+            11.0
+          ]
+        },
+        {
+          "round": 8,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            7.0,
+            12.0
+          ]
+        },
+        {
+          "round": 9,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            8.0,
+            13.0
+          ]
+        },
+        {
+          "round": 10,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            9.0,
+            14.0
+          ]
+        },
+        {
+          "round": 11,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            10.0,
+            15.0
+          ]
+        },
+        {
+          "round": 12,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            11.0,
+            16.0
+          ]
+        },
+        {
+          "round": 13,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            12.0,
+            17.0
+          ]
+        },
+        {
+          "round": 14,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            13.0,
+            18.0
+          ]
+        },
+        {
+          "round": 15,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            14.0,
+            19.0
+          ]
+        },
+        {
+          "round": 16,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            15.0,
+            20.0
+          ]
+        },
+        {
+          "round": 17,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            16.0,
+            21.0
+          ]
+        },
+        {
+          "round": 18,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            17.0,
+            22.0
+          ]
+        },
+        {
+          "round": 19,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            18.0,
+            23.0
+          ]
+        },
+        {
+          "round": 20,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            19.0,
+            24.0
+          ]
+        },
+        {
+          "round": 21,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            20.0,
+            25.0
+          ]
+        },
+        {
+          "round": 22,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            21.0,
+            26.0
+          ]
+        },
+        {
+          "round": 23,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            22.0,
+            27.0
+          ]
+        },
+        {
+          "round": 24,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            23.0,
+            28.0
+          ]
+        },
+        {
+          "round": 25,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            24.0,
+            29.0
+          ]
+        },
+        {
+          "round": 26,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            25.0,
+            30.0
+          ]
+        },
+        {
+          "round": 27,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            26.0,
+            31.0
+          ]
+        },
+        {
+          "round": 28,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            27.0,
+            32.0
+          ]
+        },
+        {
+          "round": 29,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            28.0,
+            33.0
+          ]
+        },
+        {
+          "round": 30,
+          "actions": [
+            "CLAIM_MORE",
+            "CLAIM_MORE"
+          ],
+          "payoffs": [
+            1.0,
+            1.0
+          ],
+          "cumulative_payoffs": [
+            29.0,
+            34.0
+          ]
+        }
+      ],
+      "total_payoffs": [
+        29.0,
+        34.0
+      ],
+      "average_payoffs": [
+        0.9666666666666667,
+        1.1333333333333333
+      ],
+      "cooperation_rates": [
+        0.03333333333333333,
+        0.0
+      ],
+      "educational_fixture": true
+    },
     "final_recommendation": {
       "outcome_id": null,
       "energy_kwh": [],

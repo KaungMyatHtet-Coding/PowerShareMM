@@ -13,6 +13,27 @@ import { I18nProvider } from './i18n/I18nContext';
 import type { FullAnalysisData, Scenario } from './types';
 
 const data = analyzeMock();
+
+const demoSimData: FullAnalysisData = {
+  ...data,
+  repeated_game_result: {
+    fixture_id: 'educational-pd-001',
+    educational_fixture: true,
+    rounds: 30,
+    seed: 42,
+    player_strategies: ['TIT_FOR_TAT', 'ALWAYS_CLAIM_MORE'],
+    history: Array.from({ length: 30 }, (_, i) => ({
+      round: i + 1,
+      actions: [i === 0 ? 'COOPERATE' : 'CLAIM_MORE', 'CLAIM_MORE'],
+      payoffs: [i === 0 ? 66.0 : 66.73, i === 0 ? 71.39 : 60.88],
+      cumulative_payoffs: [(i + 1) * 66, (i + 1) * 70],
+    })),
+    total_payoffs: [29, 34],
+    average_payoffs: [0.9666666666666667, 1.1333333333333333],
+    cooperation_rates: [0.03333333333333333, 0],
+  },
+};
+
 const renderPanels = (ui: React.ReactElement) => render(<I18nProvider>{ui}</I18nProvider>);
 
 afterEach(() => {
@@ -685,6 +706,135 @@ describe('AnalysisPanels — Guided UX', () => {
     renderPanels(<AnalysisPanels data={noSolutionData} tab="arbitration" scenario={demoScenario} />);
     expect(screen.getByText('No mutually acceptable allocation found')).toBeInTheDocument();
     expect(screen.getByText(/No mutually acceptable allocation was found under the current inputs/)).toBeInTheDocument();
+  });
+
+
+  /* 29. Page 5 (Repeated Game) 11-Section Guided Redesign Tests in English */
+  it('renders all 11 sections of the redesigned Repeated Game page in English', () => {
+    const onSelectTab = vi.fn();
+    renderPanels(<AnalysisPanels data={demoSimData} tab="simulation" onSelectTab={onSelectTab} scenario={demoScenario} />);
+
+    // Section 1: Page Purpose & 3-Step Guide
+    expect(screen.getByRole('heading', { level: 2, name: 'What happens when the businesses make the same decision repeatedly?' })).toBeInTheDocument();
+    expect(screen.getByText(/A repeated game studies how two players behave when they meet/)).toBeInTheDocument();
+    expect(screen.getByText('1. Each player follows a strategy.')).toBeInTheDocument();
+
+    // Educational Fixture Disclosure
+    expect(screen.getByText(/This is an educational repeated-game example\./)).toBeInTheDocument();
+
+    // Section 2: Real-Life Connection
+    expect(screen.getByText('Real-Life Analogy')).toBeInTheDocument();
+    expect(screen.getByText(/Analogy: For example, two nearby businesses may share backup electricity/)).toBeInTheDocument();
+
+    // Section 3: Simulation Overview
+    expect(screen.getByText('Simulation Overview')).toBeInTheDocument();
+    expect(screen.getByText('educational-pd-001')).toBeInTheDocument();
+    expect(screen.getAllByText('30').length).toBeGreaterThan(0);
+    expect(screen.getByText('42')).toBeInTheDocument();
+
+    // Section 4: Meet the Two Strategies
+    expect(screen.getByText('Meet the Two Strategies')).toBeInTheDocument();
+    expect(screen.getByText(/Starts by cooperating\. After that, it copies the other player’s previous action/)).toBeInTheDocument();
+    expect(screen.getByText(/Chooses CLAIM_MORE in every round, regardless of the other player’s previous action/)).toBeInTheDocument();
+
+    // Section 5: Important Terms
+    expect(screen.getByText('Important Terms')).toBeInTheDocument();
+
+    // Section 6: Round History (First 5 initially)
+    expect(screen.getByText('What Happened? Round History')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Show all rounds (30)' })).toBeInTheDocument();
+    expect(screen.getByText('Cooperate (COOPERATE)')).toBeInTheDocument();
+    expect(screen.getAllByText('Claim more (CLAIM_MORE)').length).toBeGreaterThan(0);
+
+    // Toggle Show all rounds
+    fireEvent.click(screen.getByRole('button', { name: 'Show all rounds (30)' }));
+    expect(screen.getByRole('button', { name: 'Show fewer rounds' })).toBeInTheDocument();
+
+    // Section 7: Round-by-Round Story
+    expect(screen.getByText('Round-by-Round Story')).toBeInTheDocument();
+    expect(screen.getByText(/In Round 1, Shwe Mini Market \(Cooperate \(COOPERATE\)\)/)).toBeInTheDocument();
+
+    // Section 8: Final Result Summary
+    expect(screen.getByText('Final Result Summary')).toBeInTheDocument();
+    expect(screen.getByText('29')).toBeInTheDocument();
+    expect(screen.getByText('34')).toBeInTheDocument();
+    expect(screen.getByText('0.9667')).toBeInTheDocument();
+    expect(screen.getByText('1.1333')).toBeInTheDocument();
+    expect(screen.getByText('3.3%')).toBeInTheDocument();
+    expect(screen.getByText('0.0%')).toBeInTheDocument();
+
+    // Section 9: Beginner-Friendly Lesson
+    expect(screen.getByText('Beginner-Friendly Lesson')).toBeInTheDocument();
+    expect(screen.getByText(/This example shows that a strategy that responds to the other player can change/)).toBeInTheDocument();
+
+    // Section 10: Academic Details & Raw Data
+    expect(screen.getByText('Academic details and raw data')).toBeInTheDocument();
+
+    // Section 11: Next Actions (CTAs)
+    const reviewScenBtn = screen.getByRole('button', { name: 'Review Scenario' });
+    fireEvent.click(reviewScenBtn);
+    expect(onSelectTab).toHaveBeenCalledWith('scenario');
+
+    const reviewAnaBtn = screen.getByRole('button', { name: 'Review Analysis' });
+    fireEvent.click(reviewAnaBtn);
+    expect(onSelectTab).toHaveBeenCalledWith('analysis');
+
+    const reviewArbBtn = screen.getByRole('button', { name: 'Review Arbitration' });
+    fireEvent.click(reviewArbBtn);
+    expect(onSelectTab).toHaveBeenCalledWith('arbitration');
+
+    const viewResBtn = screen.getByRole('button', { name: 'View Results / Theory' });
+    fireEvent.click(viewResBtn);
+    expect(onSelectTab).toHaveBeenCalledWith('results');
+  });
+
+  /* 30. Localized Repeated Game Page in Myanmar Mode */
+  it('renders all Repeated Game sections in Myanmar mode', () => {
+    window.localStorage.setItem('powershare-language', 'my');
+    renderPanels(<AnalysisPanels data={demoSimData} tab="simulation" scenario={demoScenario} />);
+
+    expect(screen.getByRole('heading', { level: 2, name: 'လုပ်ငန်းနှစ်ခုက ဆုံးဖြတ်ချက်တစ်မျိုးကို အကြိမ်ကြိမ်ပြုလုပ်ပါက ဘာဖြစ်လာနိုင်သလဲ' })).toBeInTheDocument();
+    expect(screen.getByText('လက်တွေ့ဘဝ နှိုင်းယှဉ်ချက်')).toBeInTheDocument();
+    expect(screen.getByText('Simulation အကျဉ်းချုပ်')).toBeInTheDocument();
+    expect(screen.getByText('သုံးစွဲထားသော နည်းလမ်း (Strategy) နှစ်ခု')).toBeInTheDocument();
+    expect(screen.getByText('အရေးကြီးသော ဝေါဟာရများ')).toBeInTheDocument();
+    expect(screen.getByText('ဘာဖြစ်ခဲ့သနည်း။ အကြိမ်အလိုက် မှတ်တမ်း')).toBeInTheDocument();
+    expect(screen.getByText('အကြိမ်အလိုက် ဇာတ်လမ်း')).toBeInTheDocument();
+    expect(screen.getByText('နောက်ဆုံးရလဒ် အကျဉ်းချုပ်')).toBeInTheDocument();
+    expect(screen.getByText('အစပြုသူများအတွက် သင်ခန်းစာ')).toBeInTheDocument();
+    expect(screen.getByText('ပညာရေးဆိုင်ရာ အသေးစိတ်နှင့် မူရင်းဒေတာ')).toBeInTheDocument();
+    expect(screen.getByText('Arbitration ကို ပြန်လည်စစ်ဆေးရန်')).toBeInTheDocument();
+  });
+
+  /* 31. Edge Cases: Non-educational disclosure, unknown strategy, missing summary arrays, empty history, null result */
+  it('handles non-educational disclosure, unknown strategy, missing summary arrays, empty history, and null result gracefully', () => {
+    // 31a. Non-educational fixture result
+    const liveSimData: FullAnalysisData = {
+      ...data,
+      repeated_game_result: {
+        ...data.repeated_game_result!,
+        educational_fixture: false,
+        fixture_id: 'custom-pd-live',
+        player_strategies: ['UNKNOWN_STRAT_X', 'TIT_FOR_TAT'],
+        total_payoffs: [],
+        average_payoffs: [],
+        cooperation_rates: [],
+      },
+    };
+    const { unmount } = renderPanels(<AnalysisPanels data={liveSimData} tab="simulation" scenario={demoScenario} />);
+    expect(screen.getByText('Live scenario repeated-game simulation result.')).toBeInTheDocument();
+    expect(screen.getAllByText(/UNKNOWN_STRAT_X/).length).toBeGreaterThan(0);
+    expect(screen.getByText('Strategy description is unavailable.')).toBeInTheDocument();
+    expect(screen.getAllByText('Not available').length).toBeGreaterThan(0);
+    unmount();
+
+    // 31b. Null repeated_game_result
+    const nullSimData: FullAnalysisData = {
+      ...data,
+      repeated_game_result: null,
+    };
+    renderPanels(<AnalysisPanels data={nullSimData} tab="simulation" scenario={demoScenario} />);
+    expect(screen.getByText('No repeated game simulation results available. Select strategies in scenario settings to run simulation.')).toBeInTheDocument();
   });
 
   /* 12. Proves NO canonical hard-coded +9.77 or +0.62 commentary exists */
